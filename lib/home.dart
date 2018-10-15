@@ -12,68 +12,101 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  List<NewsMenu> _newsData = List<NewsMenu>();
+  List<NewsMenu> _menuData = List<NewsMenu>();
   @override
   Widget build(BuildContext context) {
-    return Stack(
+//    return NestedScrollView(
+//      headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) { return <Widget>[]; },
+//      body: new Column(
+//        children: <Widget>[
+//          new FlutterLogo(size: 100.0, colors: Colors.purple),
+//          new Container(
+//            height: 300.0,
+//            child: new ListView.builder(
+//              itemCount: 60,
+//              itemBuilder: (BuildContext context, int index) {
+//                return new Text('Item $index');
+//              },
+//            ),
+//          ),
+//          new FlutterLogo(size: 100.0, colors: Colors.orange),
+//        ],
+//      ),
+//    );
+    return ListView(
       children: <Widget>[
-        ListView(
-          children: <Widget>[
-            WeatherCard(),
-            NewsMenuCard(),
-            Card(
-              margin: EdgeInsets.symmetric(horizontal: 15.0, vertical: 5.0),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  ButtonTheme.bar( // make buttons use the appropriate styles for cards
-                    child: ButtonBar(
-                      children: <Widget>[
-                        FlatButton(
-                          child: Text('From Server'),
-                          onPressed: () {
-                            Future<Response> fetchPost() {
-//                              return get('http://pahala.xyz:5000/helloworld');
-                              return post('http://pahala.xyz:5000/hello', body: {'nama': 'SK'});
-                            }
-                            fetchPost().then(
-                              (r) => Scaffold.of(context).showSnackBar(SnackBar(content: Text(r.body),))
-                            );
-                          },
-                        ),
-                      ],
+        WeatherCard(),
+        NewsMenuCard(menu: List<NewsMenu>(), news: _newsData,),
+        Card(
+          margin: EdgeInsets.symmetric(horizontal: 15.0, vertical: 5.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              ButtonTheme.bar( // make buttons use the appropriate styles for cards
+                child: ButtonBar(
+                  children: <Widget>[
+                    FlatButton(
+                      child: Text('From Server'),
+                      onPressed: () {
+                        Future<Response> fetchPost() {
+//                          return get('http://pahala.xyz:5000/helloworld');
+                          return post('http://pahala.xyz:5000/hello', body: {'nama': 'SK'});
+                        }
+                        fetchPost().then(
+                          (r) => Scaffold.of(context).showSnackBar(SnackBar(content: Text(r.body),))
+                        );
+                      },
                     ),
-                  ),
-                ],
-              ),
-            ),
-            Card(
-              margin: EdgeInsets.only(left: 15.0, right: 15.0, top: 400.0),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  const ListTile(
-                    leading: const Icon(Icons.album),
-                    title: const Text('The Enchanted Nightingale'),
-                    subtitle: const Text('Music by Julie Gable. Lyrics by Sidney Stein.'),
-                  ),
-                  ButtonTheme.bar( // make buttons use the appropriate styles for cards
-                    child: ButtonBar(
-                      children: <Widget>[
-                        FlatButton(
-                          child: const Text('BUY TICKETS'),
-                          onPressed: () { /* ... */ },
-                        ),
-                        FlatButton(
-                          child: const Text('LISTEN'),
-                          onPressed: () { /* ... */ },
-                        ),
-                      ],
+                    FlatButton(
+                      child: Text('News'),
+                      onPressed: () {
+                        Future<Response> fetchNews() {
+                          return get('http://pahala.xyz:5000/news');
+                        }
+                        fetchNews().then(
+                          (r) {
+                            Scaffold.of(context).showSnackBar(SnackBar(content: Text(r.body),));
+                            setState(() {
+                              _newsData = NewsMenu.newsFromResponse(r.body);
+                            });
+                            debugPrint("NEWS DATA LENGTH: " + _newsData.length.toString());
+                          }
+                        );
+                      },
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
+        ),
+        Card(
+          margin: EdgeInsets.only(left: 15.0, right: 15.0, top: 400.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              const ListTile(
+                leading: const Icon(Icons.album),
+                title: const Text('The Enchanted Nightingale'),
+                subtitle: const Text('Music by Julie Gable. Lyrics by Sidney Stein.'),
+              ),
+              ButtonTheme.bar( // make buttons use the appropriate styles for cards
+                child: ButtonBar(
+                  children: <Widget>[
+                    FlatButton(
+                      child: const Text('BUY TICKETS'),
+                      onPressed: () { /* ... */ },
+                    ),
+                    FlatButton(
+                      child: const Text('LISTEN'),
+                      onPressed: () { /* ... */ },
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ],
     );
@@ -234,13 +267,17 @@ class NewsMenuScene extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView(
-      children: List<Row>.generate(5,
+      children: List<Row>.generate(data.length,
         (i) => Row(
           children: <Widget>[
-//            AspectRatio()
             Container(
-              constraints: BoxConstraints.expand(width: 80.0, height: 80.0,),
-              child: Image(image: AssetImage('assets/images/placeholder.png')),
+              constraints: BoxConstraints.expand(width: 80.0, height: 60.0),
+              margin: EdgeInsets.symmetric(vertical: 5.0),
+              child: AspectRatio(
+                aspectRatio: 1.5,
+//                child: Image.asset('assets/images/placeholder.png'),
+                child: data[i].picture != null ? Image.network(data[i].picture) : Image.asset('assets/images/placeholder.png'),
+              ),
             ),
             Expanded(
               child: Container(
@@ -248,9 +285,9 @@ class NewsMenuScene extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    Text('Title', style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),),
+                    Text(data[i].title != null ? data[i].title : '', maxLines: 1, overflow: TextOverflow.clip, style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),),
                     Container(
-                      child: Text('Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse in eros eget sapien aliquam mollis vitae sed nibh. Donec posuere quis felis in fringilla. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec pulvinar sagittis erat, eget sollicitudin erat interdum at. Duis hendrerit, nisl a maximus porta, sem quam tincidunt neque, eu cursus ligula sapien non est. Praesent sed egestas justo. Sed blandit quam ipsum. Proin fringilla odio vitae mi rutrum, ut viverra est faucibus.', maxLines: 3, overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.grey, fontStyle: FontStyle.italic, fontSize: 12.0),),
+                      child: Text(data[i].desc != null ? data[i].desc : '', maxLines: 3, overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.grey, fontStyle: FontStyle.italic, fontSize: 12.0),),
                     ),
                   ],
                 ),
