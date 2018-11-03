@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:http/http.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'asset.dart';
 import 'models.dart';
 
@@ -14,6 +15,18 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   List<NewsMenu> _newsData = List<NewsMenu>();
   List<NewsMenu> _menuData = List<NewsMenu>();
+  @override
+  void initState() {
+    super.initState();
+    Future<Response> fetchNews() => get('http://pahala.xyz:5000/news');
+    fetchNews().then(
+      (r) {
+        setState(() {
+          _newsData = NewsMenu.newsFromResponse(r.body);
+        });
+      }
+    );
+  }
   @override
   Widget build(BuildContext context) {
 //    return NestedScrollView(
@@ -51,7 +64,7 @@ class _HomePageState extends State<HomePage> {
             ],
           ),
         ),
-        NewsMenuCard(menu: List<NewsMenu>(), news: _newsData,),
+        NewsMenuCard(menu: _menuData, news: _newsData,),
         Card(
           margin: EdgeInsets.symmetric(horizontal: 15.0, vertical: 5.0),
           child: Column(
@@ -69,23 +82,6 @@ class _HomePageState extends State<HomePage> {
                         }
                         fetchPost().then(
                           (r) => Scaffold.of(context).showSnackBar(SnackBar(content: Text(r.body),))
-                        );
-                      },
-                    ),
-                    FlatButton(
-                      child: Text('News'),
-                      onPressed: () {
-                        Future<Response> fetchNews() {
-                          return get('http://pahala.xyz:5000/news');
-                        }
-                        fetchNews().then(
-                          (r) {
-                            Scaffold.of(context).showSnackBar(SnackBar(content: Text(r.body),));
-                            setState(() {
-                              _newsData = NewsMenu.newsFromResponse(r.body);
-                            });
-                            debugPrint("NEWS DATA LENGTH: " + _newsData.length.toString());
-                          }
                         );
                       },
                     ),
@@ -348,33 +344,44 @@ class NewsMenuScene extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView(
-      children: List<Row>.generate(data.length,
-        (i) => Row(
-          children: <Widget>[
-            Container(
-              constraints: BoxConstraints.expand(width: 80.0, height: 60.0),
-              margin: EdgeInsets.symmetric(vertical: 5.0),
-              child: AspectRatio(
-                aspectRatio: 1.5,
-//                child: Image.asset('assets/images/placeholder.png'),
-                child: data[i].picture != null ? Image.network(data[i].picture) : Image.asset('assets/images/placeholder.png'),
-              ),
-            ),
-            Expanded(
-              child: Container(
-                margin: EdgeInsets.only(left: 10.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Text(data[i].title != null ? data[i].title : '', maxLines: 1, overflow: TextOverflow.clip, style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),),
-                    Container(
-                      child: Text(data[i].desc != null ? data[i].desc : '', maxLines: 3, overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.grey, fontStyle: FontStyle.italic, fontSize: 12.0),),
-                    ),
-                  ],
+      children: List<GestureDetector>.generate(data.length,
+        (i) => GestureDetector(
+          onTap: () {
+            _launchURL(url) async {
+              if (await canLaunch(url)) {
+                await launch(url);
+              } else {
+                throw 'Could not launch $url';
+              }
+            }
+            _launchURL(data[i].url);
+          },
+          child: Row(
+            children: <Widget>[
+              Container(
+                constraints: BoxConstraints.expand(width: 80.0, height: 60.0),
+                margin: EdgeInsets.symmetric(vertical: 5.0),
+                child: AspectRatio(
+                  aspectRatio: 1.5,
+                  child: data[i].picture != null ? Image.network(data[i].picture) : Image.asset('assets/images/placeholder.png'),
                 ),
               ),
-            ),
-          ],
+              Expanded(
+                child: Container(
+                  margin: EdgeInsets.only(left: 10.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text(data[i].title != null ? data[i].title : '', maxLines: 1, overflow: TextOverflow.clip, style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),),
+                      Container(
+                        child: Text(data[i].desc != null ? data[i].desc : '', maxLines: 3, overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.grey, fontStyle: FontStyle.italic, fontSize: 12.0),),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
         )
       ),
     );
