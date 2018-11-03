@@ -37,6 +37,20 @@ class _HomePageState extends State<HomePage> {
     return ListView(
       children: <Widget>[
         WeatherCard(),
+        Container(
+          constraints: BoxConstraints.expand(height: 180.0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              Expanded(
+                child: NodeControlCard(),
+              ),
+              Expanded(
+                child: SleepCard(alarmTime: "7:00 AM",),
+              ),
+            ],
+          ),
+        ),
         NewsMenuCard(menu: List<NewsMenu>(), news: _newsData,),
         Card(
           margin: EdgeInsets.symmetric(horizontal: 15.0, vertical: 5.0),
@@ -223,6 +237,73 @@ class WeatherDetail extends StatelessWidget {
           ],
         ),
       ],
+    );
+  }
+}
+
+class NodeControlCard extends StatefulWidget {
+  _NodeControlCardState createState() => _NodeControlCardState();
+}
+
+class _NodeControlCardState extends State<NodeControlCard> {
+  int _value = 0;
+  List<String> _lampName = ["Lamp 1", "Lamp 2"];
+  List<bool> _isOn = [false, false];
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+        margin: EdgeInsets.only(left: 15.0, top: 5.0, bottom: 5.0, right: 7.5),
+        child: Container(
+          margin: EdgeInsets.only(left: 10.0, top: 5.0, bottom: 5.0),
+          child: Column(
+            children: <Widget>[
+              DropdownButton(
+                items: [
+                  DropdownMenuItem(child: Text(_lampName[0]), value: 0,),
+                  DropdownMenuItem(child: Text(_lampName[1]), value: 1,),
+                ],
+                onChanged: (v) { setState(() { _value = v; }); },
+                value: _value,
+              ),
+              IconButton(
+                icon: Icon(FontAwesomeIcons.lightbulb, color: _isOn[_value] ? BaseColorAssets.accent60 : Colors.grey,),
+                onPressed: () { setState(() { _isOn[_value] = !_isOn[_value]; }); },
+                iconSize: 50.0,
+              ),
+              Container(
+                margin: EdgeInsets.all(5.0),
+                child: Text("Turned " + (_isOn[_value] ? "on" : "off"), textAlign: TextAlign.center, style: TextStyle(color: Colors.grey),),
+              ),
+            ],
+          ),
+        )
+    );
+  }
+}
+
+class SleepCard extends StatelessWidget {
+  const SleepCard({Key key, this.alarmTime}) : super(key: key);
+  final String alarmTime;
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: EdgeInsets.only(left: 7.5, top: 5.0, bottom: 5.0, right: 15.0),
+      child: Column(
+        children: <Widget>[
+          ListTile(
+            title: Text("Feels sleepy?", textAlign: TextAlign.center,),
+          ),
+          IconButton(
+            icon: Icon(FontAwesomeIcons.bed, color: BaseColorAssets.secondary100,),
+            onPressed: () {  },
+            iconSize: 50.0,
+          ),
+          Container(
+            margin: EdgeInsets.all(5.0),
+            child: Text("Alarm: " + alarmTime, textAlign: TextAlign.center, style: TextStyle(color: Colors.grey),),
+          ),
+        ],
+      ),
     );
   }
 }
