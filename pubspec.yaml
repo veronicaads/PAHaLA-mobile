@@ -34,11 +34,19 @@ dependencies:
   http: ^0.11.3
   json_serializable: ^1.5.1
   url_launcher: ^4.0.1
+  flutter_launcher_icons: ^0.6.1
+  google_sign_in: ^3.2.4
+  firebase_auth: ^0.6.5
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
+flutter_icons:
+  android: true
+  image_path: "assets/images/icon.png"
+  adaptive_icon_background: "#FFE1F2ED"
+  adaptive_icon_foreground: "assets/images/icon-fg.png"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://www.dartlang.org/tools/pub/pubspec

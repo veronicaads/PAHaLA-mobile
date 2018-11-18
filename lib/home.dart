@@ -3,6 +3,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'asset.dart';
@@ -15,10 +17,24 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   List<NewsMenu> _newsData = List<NewsMenu>();
   List<NewsMenu> _menuData = List<NewsMenu>();
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
   @override
   void initState() {
     super.initState();
-    Future<Response> fetchNews() => get('http://pahala.xyz:5000/news');
+    Future<FirebaseUser> _handleSignIn() async {
+      GoogleSignInAccount googleUser = await _googleSignIn.signIn();
+      GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      FirebaseUser user = await _auth.signInWithGoogle(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+      return user;
+    }
+    _handleSignIn()
+      .then((FirebaseUser user) => print(user))
+      .catchError((e) => print(e));
+    Future<Response> fetchNews() => get('https://pahala.xyz/news');
     fetchNews().then(
       (r) {
         setState(() {
@@ -77,11 +93,22 @@ class _HomePageState extends State<HomePage> {
                       child: Text('From Server'),
                       onPressed: () {
                         Future<Response> fetchPost() {
-//                          return get('http://pahala.xyz:5000/helloworld');
-                          return post('http://pahala.xyz:5000/hello', body: {'nama': 'SK'});
+                          return post('https://pahala.xyz/hello', body: {'names': 'SK'});
                         }
                         fetchPost().then(
                           (r) => Scaffold.of(context).showSnackBar(SnackBar(content: Text(r.body),))
+                        );
+                      },
+                    ),
+                    FlatButton(
+                      child: Text('Logout'),
+                      onPressed: () {
+                        Future<Null> _handleSignOut() async {
+                          await _auth.signOut();
+                          await _googleSignIn.signOut();
+                        }
+                        _handleSignOut().then(
+                          (_) => Scaffold.of(context).showSnackBar(SnackBar(content: Text("Logged out")))
                         );
                       },
                     ),
