@@ -1,0 +1,63 @@
+{
+  "project_info": {
+    "project_number": "295486448705",
+    "firebase_url": "https://pahala-pervasive.firebaseio.com",
+    "project_id": "pahala-pervasive",
+    "storage_bucket": "pahala-pervasive.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:295486448705:android:adb984a0e99511bd",
+        "android_client_info": {
+          "package_name": "com.aab.cari.pahala"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "295486448705-eqlj059tac1ocu73hs51qqh5qrom9pqp.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.aab.cari.pahala",
+            "certificate_hash": "a9a3d6f1ca209ef4c41ab9ae42f003146540f539"
+          }
+        },
+        {
+          "client_id": "295486448705-ii3c5ohs77e25p9q3iq1v5rbvbi1ip2d.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.aab.cari.pahala",
+            "certificate_hash": "1c0531f4f26fdb25c958d197a55c6e02b12a60e3"
+          }
+        },
+        {
+          "client_id": "295486448705-01aov8utg1ei9luhe7evcejmk7m6hj0t.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCCssvMwloomiEy-S7wyF5jBuc01-m-VF0"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "295486448705-01aov8utg1ei9luhe7evcejmk7m6hj0t.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

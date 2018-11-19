@@ -1,6 +1,28 @@
-import 'dart:developer';
-import 'package:flutter/foundation.dart';
 import 'dart:convert';
+import 'globals.dart';
+
+class Authorization {
+  static Future<bool> handleSignIn() async {
+    googleAccount = await googleSignIn.signIn();
+    if(googleAccount != null){
+      googleAuth = await googleAccount.authentication;
+      // print("TOKEN: "  + googleAuth.accessToken + ", googleAccount + googleAuth.idToken);
+      firebaseUser = await firebaseAuth.signInWithGoogle(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+      if(firebaseUser != null) return true;
+      else return false;
+    } else return false;
+  }
+  static Future<void> handleSignOut() async {
+    await firebaseAuth.signOut();
+    firebaseUser = null;
+    await googleSignIn.signOut();
+    googleAuth = null;
+    googleAccount = null;
+  }
+}
 
 class UserStats {
   UserStats(this.sleepTs, this.wakeUpTs, this.weight, this.height);

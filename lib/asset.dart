@@ -1,5 +1,20 @@
 import 'package:flutter/material.dart';
 
+class APIEndpointAssets {
+  static final protocol       = 'https://';
+  static final domain         = 'pahala.xyz';
+  static final baseURL        = APIEndpointAssets.protocol + APIEndpointAssets.domain;
+  static final weatherService = APIEndpointAssets.baseURL + '/weather';
+  static final newsService    = APIEndpointAssets.baseURL + '/news';
+  static final menuService    = APIEndpointAssets.baseURL + '/menu';
+}
+
+class BrandImageAssets{
+  static final logo   = 'assets/images/logo.png';
+  static final iconBg = 'assets/images/icon.png';
+  static final iconFg = 'assets/images/icon-fg.png';
+}
+
 class BaseColorAssets{
   static final primary20     = Color(0xFFFBFEFD);
   static final primary40     = Color(0xFFE1F2ED);
@@ -31,6 +46,11 @@ class BaseColorAssets{
   static final light60       = Color(0xFFE7E7E7);
   static final light80       = Color(0xFFDFDFDF);
   static final light100      = Color(0xFFD7D7D7);
+  static final gray20        = Color(0xFFAFAFAF);
+  static final gray40        = Color(0xFFA7A7A7);
+  static final gray60        = Color(0xFF9F9F9F);
+  static final gray80        = Color(0xFF979797);
+  static final gray100       = Color(0xFF8F8F8F);
   static final dark20        = Color(0xFF4F4F4F);
   static final dark40        = Color(0xFF474747);
   static final dark60        = Color(0xFF3F3F3F);
@@ -91,4 +111,8 @@ class SkyAssets{
   static final brightSky = [
     'assets/images/sky/bright_a1.jpg',
   ];
+}
+
+class VendorAsset{
+  static final googleFav = 'assets/images/vendor/google-fav.png';
 }

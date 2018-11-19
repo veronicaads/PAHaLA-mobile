@@ -22,18 +22,6 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    Future<FirebaseUser> _handleSignIn() async {
-      GoogleSignInAccount googleUser = await _googleSignIn.signIn();
-      GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-      FirebaseUser user = await _auth.signInWithGoogle(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
-      return user;
-    }
-    _handleSignIn()
-      .then((FirebaseUser user) => print(user))
-      .catchError((e) => print(e));
     Future<Response> fetchNews() => get('https://pahala.xyz/news');
     fetchNews().then(
       (r) {

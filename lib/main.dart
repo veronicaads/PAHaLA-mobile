@@ -328,15 +328,17 @@
 //}
 
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'globals.dart';
 import 'login.dart';
 import 'me.dart';
 import 'home.dart';
 import 'track.dart';
-import 'asset.dart';
 
-void main() => runApp(new PahalaApp());
+void main() => runApp(PahalaApp());
 
 class PahalaApp extends StatelessWidget {
+  FirebaseUser user;
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
@@ -348,6 +350,9 @@ class PahalaApp extends StatelessWidget {
         accentColor: Colors.lime,
       ),
       home: SafeArea(child: Home()),
+      routes: <String, WidgetBuilder>{
+        '/login': (BuildContext context) => WelcomePage(),
+      },
     );
   }
 }
@@ -358,6 +363,15 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   int _currentIndex = 1;
+  @override
+  void initState() {
+    super.initState();
+    if(firebaseUser == null){
+      Future(() {
+        Navigator.of(context).pushNamed('/login');
+      });
+    }
+  }
   final List<Widget> _children = [
     MePage(),
     HomePage(),
