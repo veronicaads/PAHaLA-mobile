@@ -11,6 +11,7 @@ class Authorization {
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
+      print("UID: " + firebaseUser.uid);
       if(firebaseUser != null) return true;
       else return false;
     } else return false;
@@ -32,6 +33,42 @@ class UserStats {
   final double height;
   int sleepDuration() => wakeUpTs.difference(sleepTs).inMinutes;
   double bmi() => weight / (height * height);
+}
+
+class Weather {
+  Weather({this.lon, this.lat, this.code, this.title, this.desc, this.timeOfDay, this.temp, this.windSpeed, this.windDeg, this.humidity, this.pressure, this.cloud, this.visibility});
+  final double lon;
+  final double lat;
+  final int code;
+  final String title;
+  final String desc;
+  final String timeOfDay;
+  final double temp;
+  final double windSpeed;
+  final int windDeg;
+  final int humidity;
+  final int pressure;
+  final int cloud;
+  final int visibility;
+  factory Weather.weatherFromResponse(String json){
+    var v = jsonDecode(json);
+    print("WEATHER DEBUG: " + v['weather'][0]['id'].toString());
+    return Weather(
+      lon: v['coord']['lon'],
+      lat: v['coord']['lat'],
+      code: v['weather'][0]['id'],
+      title: v['weather'][0]['main'],
+      desc: v['weather'][0]['description'],
+      timeOfDay: v['weather'][0]['icon'].toString().substring(v['weather'][0]['icon'].toString().length - 1),
+      temp: double.parse(v['main']['temp'].toString()),
+      windSpeed: v['wind']['speed'],
+      windDeg: v['wind']['deg'],
+      humidity: v['main']['humidity'],
+      pressure: v['main']['pressure'],
+      cloud: v['clouds']['all'],
+      visibility: v['visibility']
+    );
+  }
 }
 
 class NewsMenu {

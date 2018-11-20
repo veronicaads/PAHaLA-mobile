@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:charts_flutter/flutter.dart';
 import 'package:month_picker_strip/month_picker_strip.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
+import 'package:timeline/timeline.dart';
+import 'package:timeline/model/timeline_model.dart';
+import 'package:date_format/date_format.dart';
 import 'models.dart';
 import 'asset.dart';
 
@@ -13,6 +16,7 @@ class TrackPage extends StatefulWidget {
 class _TrackPageState extends State<TrackPage> {
   DateTime _selectedMonth = DateTime.now();
   List<UserStats> _data;
+  List<TimelineModel> _timeline;
   List<UserStats> generatePlaceholderData() {
     var r = Random();
     List<UserStats> data = [];
@@ -29,9 +33,19 @@ class _TrackPageState extends State<TrackPage> {
     }
     return data;
   }
+  List<TimelineModel> generateTimeline(List<UserStats> data){
+    return data.map((v) {
+      return TimelineModel(
+        id: v.sleepTs.toIso8601String(),
+        title: formatDate(v.sleepTs, [MM, ', ', d, ' ', yyyy]),
+        description: "Sleep Duration: " + v.sleepDuration().toString() + " mins (" + (v.sleepDuration() / 60).toStringAsPrecision(3) + " hours)\nBMI: " + v.bmi().toStringAsPrecision(5),
+      );
+    }).toList();
+  }
   @override
   Widget build(BuildContext context) {
     _data = generatePlaceholderData();
+    _timeline = generateTimeline(_data);
     return Column(
       children: <Widget>[
         MonthStrip(
@@ -51,7 +65,8 @@ class _TrackPageState extends State<TrackPage> {
             color: BaseColorAssets.primary100,
           ),
         ),
-        Expanded(
+        Container(
+          constraints: BoxConstraints.expand(height: 200.0),
           child: Swiper(
             itemBuilder: (BuildContext context, int index) {
               var scenes = <Widget>[
@@ -61,8 +76,20 @@ class _TrackPageState extends State<TrackPage> {
               return scenes[index];
             },
             itemCount: 2,
-            viewportFraction: 0.95,
+            viewportFraction: 0.85,
             scale: 0.9,
+            control: SwiperControl(
+              size: 15.0,
+              color: BaseColorAssets.primary100,
+            ),
+          ),
+        ),
+        Expanded(
+          child: TimelineComponent(
+            timelineList: _timeline,
+            lineColor: BaseColorAssets.primary100,
+            headingColor: BaseColorAssets.secondary80,
+            backgroundColor: Colors.transparent,
           ),
         ),
       ]
@@ -164,7 +191,6 @@ class WeightScene extends StatelessWidget {
                         b: BaseColorAssets.primary40.blue,
                       ),
                       labelDirection: AnnotationLabelDirection.vertical,
-
                     )
                   ])
                 ],

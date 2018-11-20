@@ -7,6 +7,8 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'asset.dart';
 import 'models.dart';
 
@@ -15,14 +17,30 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  List<NewsMenu> _newsData = List<NewsMenu>();
-  List<NewsMenu> _menuData = List<NewsMenu>();
+  List<NewsMenu> _newsData;
+  List<NewsMenu> _menuData;
+  Weather _weatherData;
   final GoogleSignIn _googleSignIn = GoogleSignIn();
   final FirebaseAuth _auth = FirebaseAuth.instance;
   @override
   void initState() {
     super.initState();
-    Future<Response> fetchNews() => get('https://pahala.xyz/news');
+    Future<Response> fetchWeather() async {
+      Position position = await Geolocator().getCurrentPosition(desiredAccuracy: LocationAccuracy.medium);
+      print("POSITION lon: " + position.longitude.toString() + ", lat: " + position.latitude.toString());
+      print("ENDPOINT: " + APIEndpointAssets.weatherService);
+      return post(APIEndpointAssets.weatherService, body: {'lon': position.longitude.toString(), 'lat': position.latitude.toString()});
+    }
+    fetchWeather().then(
+      (r) {
+        print("FETCH WEATHER" + r.body);
+        setState(() {
+          _weatherData = Weather.weatherFromResponse(r.body);
+        });
+        print(_weatherData);
+      }
+    );
+    Future<Response> fetchNews() => get(APIEndpointAssets.newsService);
     fetchNews().then(
       (r) {
         setState(() {
@@ -33,27 +51,9 @@ class _HomePageState extends State<HomePage> {
   }
   @override
   Widget build(BuildContext context) {
-//    return NestedScrollView(
-//      headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) { return <Widget>[]; },
-//      body: new Column(
-//        children: <Widget>[
-//          new FlutterLogo(size: 100.0, colors: Colors.purple),
-//          new Container(
-//            height: 300.0,
-//            child: new ListView.builder(
-//              itemCount: 60,
-//              itemBuilder: (BuildContext context, int index) {
-//                return new Text('Item $index');
-//              },
-//            ),
-//          ),
-//          new FlutterLogo(size: 100.0, colors: Colors.orange),
-//        ],
-//      ),
-//    );
-    return ListView(
+    return (_newsData != null && /* _menuData != null && */ _weatherData != null || true) ? ListView(
       children: <Widget>[
-        WeatherCard(),
+        WeatherCard(weather: _weatherData,),
         Container(
           constraints: BoxConstraints.expand(height: 180.0),
           child: Row(
@@ -86,6 +86,14 @@ class _HomePageState extends State<HomePage> {
                         fetchPost().then(
                           (r) => Scaffold.of(context).showSnackBar(SnackBar(content: Text(r.body),))
                         );
+                      },
+                    ),
+                    FlatButton(
+                      child: Text('Bluetooth'),
+                      onPressed: () {
+                        Future(() {
+                          Navigator.of(context).pushNamed('/blue');
+                        });
                       },
                     ),
                     FlatButton(
@@ -134,11 +142,13 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
       ],
-    );
+    ) : SpinKitDoubleBounce(color: BaseColorAssets.primary60, size: 200.0,);
   }
 }
 
 class WeatherCard extends StatelessWidget {
+  const WeatherCard({Key key, this.weather}) : super(key: key);
+  final Weather weather;
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -176,8 +186,8 @@ class WeatherCard extends StatelessWidget {
             children: <Widget>[
               ListTile(
                 contentPadding: EdgeInsets.only(left: 125.0),
-                title: Text('Partly Cloudy (34 °C)'),
-                subtitle: Text('Periods of clouds and sunshine, a thunderstorm in spots this afternoon'),
+                title: Text(weather != null ? weather.title : ""),
+                subtitle: Text('Lorem ipsum dolor sit amet'),
               ),
               Container(
                 margin: EdgeInsets.symmetric(horizontal: 15.0, vertical: 5.0),
@@ -187,9 +197,9 @@ class WeatherCard extends StatelessWidget {
                   children: [
                     TableRow(
                         children: <Widget>[
-                          WeatherDetail(tooltip: 'Wind Speed', icon: FontAwesomeIcons.wind, val: '18 km/h', glyph: FontAwesomeIcons.locationArrow, glyphTransform: Matrix4.rotationZ(.75 * pi + .25 * pi),),
-                          WeatherDetail(tooltip: 'Humidity', icon: FontAwesomeIcons.tint, val: '45%',),
-                          WeatherDetail(tooltip: 'Pressure', icon: FontAwesomeIcons.weightHanging, val: '1009.00 mb',),
+                          WeatherDetail(tooltip: 'Wind Speed', icon: FontAwesomeIcons.wind, val: (weather != null ? weather.windSpeed.toString() : '?') + ' km/h', glyph: FontAwesomeIcons.locationArrow, glyphTransform: Matrix4.rotationZ((weather != null ? weather.windDeg / (2 * pi) : 0) + .25 * pi),),
+                          WeatherDetail(tooltip: 'Humidity', icon: FontAwesomeIcons.tint, val: (weather != null ? weather.humidity.toString() : '?') + '%',),
+                          WeatherDetail(tooltip: 'Pressure', icon: FontAwesomeIcons.weightHanging, val: (weather != null ? weather.pressure.toString() : '?') + ' hPa',),
                         ]
                     ),
                     TableRow(
@@ -197,9 +207,9 @@ class WeatherCard extends StatelessWidget {
                     ),
                     TableRow(
                         children: <Widget>[
-                          WeatherDetail(tooltip: 'UV Index', icon: FontAwesomeIcons.solidSun, val: '8',),
-                          WeatherDetail(tooltip: 'Cloud Cover', icon: FontAwesomeIcons.cloud, val: '35%',),
-                          WeatherDetail(tooltip: 'Visibility', icon: FontAwesomeIcons.eye, val: '8 km',),
+                          WeatherDetail(tooltip: 'UV Index', icon: FontAwesomeIcons.thermometerHalf, val: (weather != null ? weather.temp.toString() : '?') + '°C',),
+                          WeatherDetail(tooltip: 'Cloud Cover', icon: FontAwesomeIcons.cloud, val: (weather != null ? weather.cloud.toString() : '?') + '%',),
+                          WeatherDetail(tooltip: 'Visibility', icon: FontAwesomeIcons.eye, val: (weather != null ? (weather.visibility / 1000).toString() : '?') + ' km',),
                         ]
                     )
                   ],
@@ -213,7 +223,7 @@ class WeatherCard extends StatelessWidget {
           constraints: BoxConstraints.tightFor(width: 125.0, height: 125.0),
           decoration: BoxDecoration(
               image: DecorationImage(
-                image: AssetImage(WeatherIconAssets.icons[2]),
+                image: AssetImage(WeatherAssets.image[weather != null ? weather.code.toString() + weather.timeOfDay : '800d']),
                 fit: BoxFit.cover,
               )
           ),
@@ -302,7 +312,7 @@ class SleepCard extends StatelessWidget {
       child: Column(
         children: <Widget>[
           ListTile(
-            title: Text("Feels sleepy?", textAlign: TextAlign.center,),
+            title: Text("Feel sleepy?", textAlign: TextAlign.center,),
           ),
           IconButton(
             icon: Icon(FontAwesomeIcons.bed, color: BaseColorAssets.secondary100,),
@@ -344,7 +354,8 @@ class NewsMenuCard extends StatelessWidget {
 //            margin: EdgeInsets.all(0.0),
 //          ),
           control: SwiperControl(
-            size: 15.0
+            size: 15.0,
+            color: BaseColorAssets.primary100,
           ),
           loop: false,
         ),

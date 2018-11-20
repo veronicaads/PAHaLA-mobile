@@ -334,6 +334,7 @@ import 'login.dart';
 import 'me.dart';
 import 'home.dart';
 import 'track.dart';
+import 'blue.dart';
 
 void main() => runApp(PahalaApp());
 
@@ -352,6 +353,7 @@ class PahalaApp extends StatelessWidget {
       home: SafeArea(child: Home()),
       routes: <String, WidgetBuilder>{
         '/login': (BuildContext context) => WelcomePage(),
+        '/blue': (BuildContext context) => FlutterBlueApp(),
       },
     );
   }
