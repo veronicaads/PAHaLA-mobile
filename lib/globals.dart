@@ -6,3 +6,4 @@ FirebaseAuth firebaseAuth = FirebaseAuth.instance;
 GoogleSignInAccount googleAccount;
 GoogleSignInAuthentication googleAuth;
 FirebaseUser firebaseUser;
+bool redirectOnce = true;

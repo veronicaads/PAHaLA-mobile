@@ -27,34 +27,15 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     Future<Response> fetchWeather() async {
       Position position = await Geolocator().getCurrentPosition(desiredAccuracy: LocationAccuracy.medium);
-      print("POSITION lon: " + position.longitude.toString() + ", lat: " + position.latitude.toString());
-      print("ENDPOINT: " + APIEndpointAssets.weatherService);
+//      print("POSITION lon: " + position.longitude.toString() + ", lat: " + position.latitude.toString());
+//      print("ENDPOINT: " + APIEndpointAssets.weatherService);
       return post(APIEndpointAssets.weatherService, body: {'lon': position.longitude.toString(), 'lat': position.latitude.toString()});
     }
-    fetchWeather().then(
-      (r) {
-        setState(() {
-          _weatherData = Weather.weatherFromResponse(r.body);
-        });
-      }
-    );
+    fetchWeather().then( (r) { setState(() { _weatherData = Weather.weatherFromResponse(r.body); }); } );
     Future<Response> fetchNews() => get(APIEndpointAssets.newsService);
-    fetchNews().then(
-      (r) {
-        setState(() {
-          _newsData = NewsMenu.newsFromResponse(r.body);
-        });
-      }
-    );
+    fetchNews().then( (r) { setState(() { _newsData = NewsMenu.newsFromResponse(r.body); }); } );
     Future<Response> fetchMenu() => get(APIEndpointAssets.menuService);
-    fetchMenu().then(
-        (r) {
-          print(r.body);
-          setState(() {
-            _menuData = NewsMenu.menuFromResponse(r.body);
-          });
-        }
-    );
+    fetchMenu().then( (r) { setState(() { _menuData = NewsMenu.menuFromResponse(r.body); }); } );
   }
   @override
   Widget build(BuildContext context) {

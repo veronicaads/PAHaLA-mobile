@@ -328,9 +328,9 @@
 //}
 
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'globals.dart';
 import 'login.dart';
+import 'signup.dart';
 import 'me.dart';
 import 'home.dart';
 import 'track.dart';
@@ -339,7 +339,6 @@ import 'blue.dart';
 void main() => runApp(PahalaApp());
 
 class PahalaApp extends StatelessWidget {
-  FirebaseUser user;
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
@@ -353,6 +352,7 @@ class PahalaApp extends StatelessWidget {
       home: SafeArea(child: Home()),
       routes: <String, WidgetBuilder>{
         '/login': (BuildContext context) => WelcomePage(),
+        '/signup': (BuildContext context) => SignUpPage(),
         '/blue': (BuildContext context) => FlutterBlueApp(),
       },
     );
@@ -372,6 +372,12 @@ class _HomeState extends State<Home> {
       Future(() {
         Navigator.pushReplacementNamed(context, '/login');
       });
+    }
+    if(redirectOnce){
+      Future(() {
+        Navigator.pushReplacementNamed(context, '/signup');
+      });
+      redirectOnce = false;
     }
   }
   final List<Widget> _children = [

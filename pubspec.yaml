@@ -41,9 +41,11 @@ dependencies:
   geolocator: ^2.1.0
   flutter_blue: ^0.4.1
   timeline: ^0.0.1
+  datetime_picker_formfield: ^0.1.7
   time_machine: ^0.9.6
   date_format: ^1.0.5
   numberpicker: ^0.1.7
+  material_switch: ^0.0.8
 
 dev_dependencies:
   flutter_test:
