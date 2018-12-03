@@ -1,7 +1,22 @@
 import 'dart:convert';
 import 'globals.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class Authorization {
+//  Future<FirebaseUser> _handleSignIn() async {
+//    GoogleSignInAccount googleUser = await _googleSignIn.signIn();
+//    GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+//    FirebaseUser user = await _auth.signInWithGoogle(
+//      accessToken: googleAuth.accessToken,
+//      idToken: googleAuth.idToken,
+//    );
+//    print("signed in " + user.displayName);
+//    return user;
+//  }
+  static Future<FirebaseUser> getCurrentUser() async {
+    FirebaseUser user = await FirebaseAuth.instance.currentUser();
+    return user;
+  }
   static Future<bool> handleSignIn() async {
     googleAccount = await googleSignIn.signIn();
     if(googleAccount != null){
@@ -11,7 +26,7 @@ class Authorization {
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
-      print("UID: " + firebaseUser.uid);
+      // print("UID: " + firebaseUser.uid);
       if(firebaseUser != null) return true;
       else return false;
     } else return false;
@@ -52,7 +67,6 @@ class Weather {
   final int visibility;
   factory Weather.weatherFromResponse(String json){
     var v = jsonDecode(json);
-    print("WEATHER DEBUG: " + v['weather'][0]['id'].toString());
     return Weather(
       lon: v['coord']['lon'],
       lat: v['coord']['lat'],
@@ -62,7 +76,7 @@ class Weather {
       timeOfDay: v['weather'][0]['icon'].toString().substring(v['weather'][0]['icon'].toString().length - 1),
       temp: double.parse(v['main']['temp'].toString()),
       windSpeed: v['wind']['speed'],
-      windDeg: v['wind']['deg'],
+      windDeg: v['wind']['deg'] == null ? 0 : v['wind']['deg'],
       humidity: v['main']['humidity'],
       pressure: v['main']['pressure'],
       cloud: v['clouds']['all'],
@@ -85,7 +99,7 @@ class NewsMenu {
       url: v['url'],
     );
   }
-  static List<NewsMenu> newsFromResponse(String json) {
+  static List<NewsMenu> newsFromResponse(String json){
 //    var i=0;
 //    var decoded = JSON.decode('["foo", { "bar": 499 }]');
 //    JsonCodec().decode(source)
@@ -95,14 +109,34 @@ class NewsMenu {
 //      return List<NewsMenu>();
 //    });
     var result = List<NewsMenu>();
-    var decoded = jsonDecode(json);
-    var articles = decoded['articles'];
-    for(var article in articles){
+    var decoded = jsonDecode(json)['articles'];
+    for(var article in decoded){
       result.add(NewsMenu(
         title: article['title'],
         desc: article['description'],
         picture: article['urlToImage'],
         url: article['url'],
+      ));
+    }
+    return result;
+  }
+  factory NewsMenu.menuFormJson(Map<String, dynamic> v){
+    return NewsMenu(
+      title: v['title'],
+      desc: v['ingredients'],
+      picture: v['thumbnail'],
+      url: v['href'],
+    );
+  }
+  static List<NewsMenu> menuFromResponse(String json){
+    var result = List<NewsMenu>();
+    var decoded = jsonDecode(json);
+    for(var menu in decoded){
+      result.add(NewsMenu(
+        title: menu['title'],
+        desc: menu['ingredients'],
+        picture: menu['thumbnail'],
+        url: menu['href'],
       ));
     }
     return result;

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'models.dart';
 import 'asset.dart';
+import 'globals.dart';
 
 class WelcomePage extends StatefulWidget {
   @override
@@ -9,6 +11,20 @@ class WelcomePage extends StatefulWidget {
 }
 
 class _WelcomePageState extends State<WelcomePage> {
+  @override
+  void initState() {
+    super.initState();
+    Authorization.getCurrentUser().then(
+      (u) {
+        setState(() {
+          firebaseUser = u;
+        });
+        if(firebaseUser != null){
+          Navigator.pushReplacementNamed(context, '/');
+        }
+      }
+    );
+  }
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -46,7 +62,7 @@ class _WelcomePageState extends State<WelcomePage> {
               onPressed: () {
                 Authorization.handleSignIn().then((v) {
                   if(v) {
-                    Navigator.of(context).pushNamed('/');
+                    Navigator.pushReplacementNamed(context, '/');
                   }
                 });
               },

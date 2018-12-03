@@ -370,7 +370,7 @@ class _HomeState extends State<Home> {
     super.initState();
     if(firebaseUser == null){
       Future(() {
-        Navigator.of(context).pushNamed('/login');
+        Navigator.pushReplacementNamed(context, '/login');
       });
     }
   }

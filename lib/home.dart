@@ -33,11 +33,9 @@ class _HomePageState extends State<HomePage> {
     }
     fetchWeather().then(
       (r) {
-        print("FETCH WEATHER" + r.body);
         setState(() {
           _weatherData = Weather.weatherFromResponse(r.body);
         });
-        print(_weatherData);
       }
     );
     Future<Response> fetchNews() => get(APIEndpointAssets.newsService);
@@ -48,10 +46,19 @@ class _HomePageState extends State<HomePage> {
         });
       }
     );
+    Future<Response> fetchMenu() => get(APIEndpointAssets.menuService);
+    fetchMenu().then(
+        (r) {
+          print(r.body);
+          setState(() {
+            _menuData = NewsMenu.menuFromResponse(r.body);
+          });
+        }
+    );
   }
   @override
   Widget build(BuildContext context) {
-    return (_newsData != null && /* _menuData != null && */ _weatherData != null || true) ? ListView(
+    return (_newsData != null && _menuData != null && _weatherData != null) ? ListView(
       children: <Widget>[
         WeatherCard(weather: _weatherData,),
         Container(
