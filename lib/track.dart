@@ -21,9 +21,10 @@ class _TrackPageState extends State<TrackPage> {
     var r = Random();
     List<UserStats> data = [];
     var y = _selectedMonth.year, m = _selectedMonth.month;
-    for(var d = 1; d <= DateTime(y, m+1, 0).day; d++) {
-      var sleepTime = DateTime(y, m, d + 1, 19 + r.nextInt(4), r.nextInt(59), r.nextInt(59));
-      sleepTime = sleepTime.subtract(Duration(days: 1));
+    print("DATE:" + DateTime(y, m+1, 0).toString());
+    var h = DateTime.now().year == y && DateTime.now().month == m ? DateTime.now().day - 1 : DateTime(y, m+1, 0).day;
+    for(var d = 1; d <= h; d++) {
+      var sleepTime = DateTime(y, m, d, 19 + r.nextInt(4), r.nextInt(59), r.nextInt(59));
       data.add(UserStats(
         sleepTime,
         sleepTime.add(Duration(hours: 5 + r.nextInt(4), minutes: r.nextInt(59), seconds: r.nextInt(59))),
@@ -58,7 +59,7 @@ class _TrackPageState extends State<TrackPage> {
             setState(() {
               _data = generatePlaceholderData();
             });
-            print(_data);
+//            print(_data);
           },
           selectedTextStyle: TextStyle(
             fontWeight: FontWeight.bold,
@@ -131,6 +132,13 @@ class SleepScene extends StatelessWidget {
               domainAxis: DateTimeAxisSpec(
                 showAxisLine: false,
                 usingBarRenderer: true,
+                tickProviderSpec: DayTickProviderSpec(increments: [3]),
+              ),
+              primaryMeasureAxis: NumericAxisSpec(
+                tickProviderSpec: BasicNumericTickProviderSpec(
+                  zeroBound: true,
+                  desiredMinTickCount: 4,
+                ),
               ),
               behaviors: [SelectNearest(), DomainHighlighter()],
             ),
@@ -155,47 +163,48 @@ class WeightScene extends StatelessWidget {
           ),
         ),
         AspectRatio(
-            aspectRatio: 2.0,
-            child: Container(
-              constraints: BoxConstraints.expand(),
-              child: TimeSeriesChart([
-                Series<UserStats, DateTime>(
-                  id: 'Sleep Time',
-                  colorFn: (_, __) => Color(
-                    r: BaseColorAssets.secondary80.red,
-                    g: BaseColorAssets.secondary80.green,
-                    b: BaseColorAssets.secondary80.blue,
-                  ),
-                  domainFn: (UserStats stat, _) => stat.sleepTs,
-                  measureFn: (UserStats stat, _) => stat.bmi(),
-                  data: data,
-                )],
-                animate: true,
-                domainAxis: DateTimeAxisSpec(
-                  showAxisLine: false,
+          aspectRatio: 2.0,
+          child: Container(
+            constraints: BoxConstraints.expand(),
+            child: TimeSeriesChart([
+              Series<UserStats, DateTime>(
+                id: 'Sleep Time',
+                colorFn: (_, __) => Color(
+                  r: BaseColorAssets.secondary80.red,
+                  g: BaseColorAssets.secondary80.green,
+                  b: BaseColorAssets.secondary80.blue,
                 ),
-                primaryMeasureAxis: NumericAxisSpec(
-                  tickProviderSpec: BasicNumericTickProviderSpec(
-                    zeroBound: false,
-                    desiredTickCount: 4,
-                  ),
-                ),
-                behaviors: [SelectNearest(), DomainHighlighter(),
-                  RangeAnnotation([
-                    RangeAnnotationSegment(18, 24, RangeAnnotationAxisType.measure,
-                      startLabel: 'Ideal',
-                      labelAnchor: AnnotationLabelAnchor.start,
-                      color: Color(
-                        r: BaseColorAssets.primary40.red,
-                        g: BaseColorAssets.primary40.green,
-                        b: BaseColorAssets.primary40.blue,
-                      ),
-                      labelDirection: AnnotationLabelDirection.vertical,
-                    )
-                  ])
-                ],
+                domainFn: (UserStats stat, _) => stat.sleepTs,
+                measureFn: (UserStats stat, _) => stat.bmi(),
+                data: data,
+              )],
+              animate: true,
+              domainAxis: DateTimeAxisSpec(
+                showAxisLine: false,
+                tickProviderSpec: DayTickProviderSpec(increments: [3]),
               ),
-            )
+              primaryMeasureAxis: NumericAxisSpec(
+                tickProviderSpec: BasicNumericTickProviderSpec(
+                  zeroBound: false,
+                  desiredTickCount: 4,
+                ),
+              ),
+              behaviors: [SelectNearest(), DomainHighlighter(),
+                RangeAnnotation([
+                  RangeAnnotationSegment(18, 24, RangeAnnotationAxisType.measure,
+                    startLabel: 'Ideal',
+                    labelAnchor: AnnotationLabelAnchor.start,
+                    color: Color(
+                      r: BaseColorAssets.primary40.red,
+                      g: BaseColorAssets.primary40.green,
+                      b: BaseColorAssets.primary40.blue,
+                    ),
+                    labelDirection: AnnotationLabelDirection.vertical,
+                  )
+                ])
+              ],
+            ),
+          )
         ),
       ],
     );

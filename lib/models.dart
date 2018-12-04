@@ -3,16 +3,6 @@ import 'globals.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class Authorization {
-//  Future<FirebaseUser> _handleSignIn() async {
-//    GoogleSignInAccount googleUser = await _googleSignIn.signIn();
-//    GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-//    FirebaseUser user = await _auth.signInWithGoogle(
-//      accessToken: googleAuth.accessToken,
-//      idToken: googleAuth.idToken,
-//    );
-//    print("signed in " + user.displayName);
-//    return user;
-//  }
   static Future<FirebaseUser> getCurrentUser() async {
     FirebaseUser user = await FirebaseAuth.instance.currentUser();
     return user;
@@ -100,14 +90,6 @@ class NewsMenu {
     );
   }
   static List<NewsMenu> newsFromResponse(String json){
-//    var i=0;
-//    var decoded = JSON.decode('["foo", { "bar": 499 }]');
-//    JsonCodec().decode(source)
-//    return jsonDecode(json, reviver: (k, v) {
-//      i++;
-//      debugPrint("iter" + i.toString() + ", " + k.toString() + ": " + v.toString());
-//      return List<NewsMenu>();
-//    });
     var result = List<NewsMenu>();
     var decoded = jsonDecode(json)['articles'];
     for(var article in decoded){
@@ -142,24 +124,3 @@ class NewsMenu {
     return result;
   }
 }
-
-//class NewsSource{
-//  NewsSource(this.id, this.name);
-//  final int id;
-//  final String name;
-//}
-//
-//class News {
-//  News(this.source, this.author, this.title, this.description, this.url, this.urlToImage, this.publishedAt, this.content);
-//  final NewsSource source;
-//  final String author;
-//  final String title;
-//  final String description;
-//  final Uri url;
-//  final Uri urlToImage;
-//  final String publishedAt;
-//  final String content;
-//  factory News.fromJson(Map<String, dynamic> v){
-//    return News
-//  }
-//}

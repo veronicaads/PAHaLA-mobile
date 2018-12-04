@@ -66,7 +66,37 @@ class _HomePageState extends State<HomePage> {
                 child: ButtonBar(
                   children: <Widget>[
                     FlatButton(
-                      child: Text('From Server'),
+                      child: Text('Schedule'),
+                      onPressed: () {
+                        Future(() {
+                          Navigator.pushNamed(context, '/schedule');
+                        });
+                      },
+                    ),
+                    FlatButton(
+                      child: Text('Sign Up'),
+                      onPressed: () {
+                        Future(() {
+                          Navigator.pushNamed(context, '/signup');
+                        });
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        Card(
+          margin: EdgeInsets.symmetric(horizontal: 15.0, vertical: 5.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              ButtonTheme.bar( // make buttons use the appropriate styles for cards
+                child: ButtonBar(
+                  children: <Widget>[
+                    FlatButton(
+                      child: Text('POST'),
                       onPressed: () {
                         Future<Response> fetchPost() {
                           return post('https://pahala.xyz/hello', body: {'names': 'SK'});
@@ -77,7 +107,7 @@ class _HomePageState extends State<HomePage> {
                       },
                     ),
                     FlatButton(
-                      child: Text('Bluetooth'),
+                      child: Text('BT'),
                       onPressed: () {
                         Future(() {
                           Navigator.of(context).pushNamed('/blue');
@@ -102,33 +132,6 @@ class _HomePageState extends State<HomePage> {
             ],
           ),
         ),
-        Card(
-          margin: EdgeInsets.only(left: 15.0, right: 15.0, top: 400.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              const ListTile(
-                leading: const Icon(Icons.album),
-                title: const Text('The Enchanted Nightingale'),
-                subtitle: const Text('Music by Julie Gable. Lyrics by Sidney Stein.'),
-              ),
-              ButtonTheme.bar( // make buttons use the appropriate styles for cards
-                child: ButtonBar(
-                  children: <Widget>[
-                    FlatButton(
-                      child: const Text('BUY TICKETS'),
-                      onPressed: () { /* ... */ },
-                    ),
-                    FlatButton(
-                      child: const Text('LISTEN'),
-                      onPressed: () { /* ... */ },
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
       ],
     ) : SpinKitDoubleBounce(color: BaseColorAssets.primary60, size: 200.0,);
   }
@@ -146,7 +149,7 @@ class WeatherCard extends StatelessWidget {
           child: Container(
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: AssetImage(SkyAssets.brightSky[0]),
+                image: AssetImage(weather.timeOfDay == 'd' ? SkyAssets.daySky[0] : SkyAssets.nightSky[0]),
                 fit: BoxFit.cover,
               ),
             ),
@@ -195,7 +198,7 @@ class WeatherCard extends StatelessWidget {
                     ),
                     TableRow(
                         children: <Widget>[
-                          WeatherDetail(tooltip: 'UV Index', icon: FontAwesomeIcons.thermometerHalf, val: (weather != null ? weather.temp.toString() : '?') + '°C',),
+                          WeatherDetail(tooltip: 'Temperature', icon: FontAwesomeIcons.thermometerHalf, val: (weather != null ? weather.temp.toString() : '?') + '°C',),
                           WeatherDetail(tooltip: 'Cloud Cover', icon: FontAwesomeIcons.cloud, val: (weather != null ? weather.cloud.toString() : '?') + '%',),
                           WeatherDetail(tooltip: 'Visibility', icon: FontAwesomeIcons.eye, val: (weather != null ? (weather.visibility / 1000).toString() : '?') + ' km',),
                         ]

@@ -16,46 +16,106 @@ class BrandImageAssets {
 }
 
 class BaseColorAssets {
-  static final primary20 = Color(0xFFFBFEFD);
-  static final primary40 = Color(0xFFE1F2ED);
-  static final primary60 = Color(0xFFB8DCD2);
-  static final primary80 = Color(0xFF87BDAE);
-  static final primary100 = Color(0xFF579B88);
-  static final accent20 = Color(0xFFFFFBEF);
-  static final accent40 = Color(0xFFFFF5D7);
-  static final accent60 = Color(0xFFF7E6B2);
-  static final accent80 = Color(0xFFD1BB78);
-  static final accent100 = Color(0xFFAC9347);
-  static final secondary20 = Color(0xFFCBF4E8);
-  static final secondary40 = Color(0xFF96DFCB);
-  static final secondary60 = Color(0xFF67C5AB);
-  static final secondary80 = Color(0xFF41A78B);
-  static final secondary100 = Color(0xFF279275);
-  static final tertiary20 = Color(0xFFF9FFFD);
-  static final tertiary40 = Color(0xFFC7F9EB);
-  static final tertiary60 = Color(0xFF96EBD3);
-  static final tertiary80 = Color(0xFF6AD7B9);
-  static final tertiary100 = Color(0xFF44BA99);
-  static final quaternary20 = Color(0xFFFCFDF4);
-  static final quaternary40 = Color(0xFFF6FADE);
-  static final quaternary60 = Color(0xFFEEF7C0);
-  static final quaternary80 = Color(0xFFC9D589);
-  static final quaternary100 = Color(0xFFA2B155);
-  static final light20 = Color(0xFFF7F7F7);
-  static final light40 = Color(0xFFEFEFEF);
-  static final light60 = Color(0xFFE7E7E7);
-  static final light80 = Color(0xFFDFDFDF);
-  static final light100 = Color(0xFFD7D7D7);
-  static final gray20 = Color(0xFFAFAFAF);
-  static final gray40 = Color(0xFFA7A7A7);
-  static final gray60 = Color(0xFF9F9F9F);
-  static final gray80 = Color(0xFF979797);
-  static final gray100 = Color(0xFF8F8F8F);
-  static final dark20 = Color(0xFF4F4F4F);
-  static final dark40 = Color(0xFF474747);
-  static final dark60 = Color(0xFF3F3F3F);
-  static final dark80 = Color(0xFF373737);
-  static final dark100 = Color(0xFF2F2F2F);
+  static final Color primary20 = Color(0xFFFBFEFD);
+  static final Color primary40 = Color(0xFFE1F2ED);
+  static final Color primary60 = Color(0xFFB8DCD2);
+  static final Color primary80 = Color(0xFF87BDAE);
+  static final Color primary100 = Color(0xFF579B88);
+  static final MaterialColor materialPrimary = MaterialColor(primary60.value, {
+    50: Colors.white,
+    100: primary20,
+    200: primary20,
+    300: primary20,
+    400: primary40,
+    500: primary60,
+    600: primary80,
+    700: primary100,
+    800: primary100,
+    900: primary100,
+  });
+  static final Color accent20 = Color(0xFFFFFBEF);
+  static final Color accent40 = Color(0xFFFFF5D7);
+  static final Color accent60 = Color(0xFFF7E6B2);
+  static final Color accent80 = Color(0xFFD1BB78);
+  static final Color accent100 = Color(0xFFAC9347);
+  static final MaterialColor materialAccent = MaterialColor(accent60.value, {
+    50: Colors.white,
+    100: accent20,
+    200: accent20,
+    300: accent20,
+    400: accent40,
+    500: accent60,
+    600: accent80,
+    700: accent100,
+    800: accent100,
+    900: accent100,
+  });
+  static final Color secondary20 = Color(0xFFCBF4E8);
+  static final Color secondary40 = Color(0xFF96DFCB);
+  static final Color secondary60 = Color(0xFF67C5AB);
+  static final Color secondary80 = Color(0xFF41A78B);
+  static final Color secondary100 = Color(0xFF279275);
+  static final MaterialColor materialSecondary = MaterialColor(secondary60.value, {
+    50: Colors.white,
+    100: secondary20,
+    200: secondary20,
+    300: secondary20,
+    400: secondary40,
+    500: secondary60,
+    600: secondary80,
+    700: secondary100,
+    800: secondary100,
+    900: secondary100,
+  });
+  static final Color tertiary20 = Color(0xFFF9FFFD);
+  static final Color tertiary40 = Color(0xFFC7F9EB);
+  static final Color tertiary60 = Color(0xFF96EBD3);
+  static final Color tertiary80 = Color(0xFF6AD7B9);
+  static final Color tertiary100 = Color(0xFF44BA99);
+  static final MaterialColor materialTertiary = MaterialColor(tertiary60.value, {
+    50: Colors.white,
+    100: tertiary20,
+    200: tertiary20,
+    300: tertiary20,
+    400: tertiary40,
+    500: tertiary60,
+    600: tertiary80,
+    700: tertiary100,
+    800: tertiary100,
+    900: tertiary100,
+  });
+  static final Color quaternary20 = Color(0xFFFCFDF4);
+  static final Color quaternary40 = Color(0xFFF6FADE);
+  static final Color quaternary60 = Color(0xFFEEF7C0);
+  static final Color quaternary80 = Color(0xFFC9D589);
+  static final Color quaternary100 = Color(0xFFA2B155);
+  static final MaterialColor materialQuaternary = MaterialColor(quaternary60.value, {
+    50: Colors.white,
+    100: quaternary20,
+    200: quaternary20,
+    300: quaternary20,
+    400: quaternary40,
+    500: quaternary60,
+    600: quaternary80,
+    700: quaternary100,
+    800: quaternary100,
+    900: quaternary100,
+  });
+  static final Color light20 = Color(0xFFF7F7F7);
+  static final Color light40 = Color(0xFFEFEFEF);
+  static final Color light60 = Color(0xFFE7E7E7);
+  static final Color light80 = Color(0xFFDFDFDF);
+  static final Color light100 = Color(0xFFD7D7D7);
+  static final Color gray20 = Color(0xFFAFAFAF);
+  static final Color gray40 = Color(0xFFA7A7A7);
+  static final Color gray60 = Color(0xFF9F9F9F);
+  static final Color gray80 = Color(0xFF979797);
+  static final Color gray100 = Color(0xFF8F8F8F);
+  static final Color dark20 = Color(0xFF4F4F4F);
+  static final Color dark40 = Color(0xFF474747);
+  static final Color dark60 = Color(0xFF3F3F3F);
+  static final Color dark80 = Color(0xFF373737);
+  static final Color dark100 = Color(0xFF2F2F2F);
 }
 
 class WeatherAssets {
@@ -236,8 +296,11 @@ class WeatherAssets {
 }
 
 class SkyAssets {
-  static final brightSky = [
+  static final daySky = [
     'assets/images/sky/bright_a1.jpg',
+  ];
+  static final nightSky = [
+    'assets/images/sky/night_b2.jpg',
   ];
 }
 

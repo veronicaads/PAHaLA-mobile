@@ -7,32 +7,6 @@ class MePage extends StatefulWidget {
 class _MePageState extends State<MePage> {
   @override
   Widget build(BuildContext context) {
-//    return new Card(
-//      child: new Column(
-//        mainAxisSize: MainAxisSize.min,
-//        children: <Widget>[
-//          const ListTile(
-//            leading: const Icon(Icons.album),
-//            title: const Text('The Enchanted Nightingale'),
-//            subtitle: const Text('Music by Julie Gable. Lyrics by Sidney Stein.'),
-//          ),
-//          new ButtonTheme.bar( // make buttons use the appropriate styles for cards
-//            child: new ButtonBar(
-//              children: <Widget>[
-//                new FlatButton(
-//                  child: const Text('BUY TICKETS'),
-//                  onPressed: () { /* ... */ },
-//                ),
-//                new FlatButton(
-//                  child: const Text('LISTEN'),
-//                  onPressed: () { /* ... */ },
-//                ),
-//              ],
-//            ),
-//          ),
-//        ],
-//      ),
-//    );
     return Stack(
       children: <Widget>[
         Container(

@@ -329,8 +329,10 @@
 
 import 'package:flutter/material.dart';
 import 'globals.dart';
+import 'asset.dart';
 import 'login.dart';
 import 'signup.dart';
+import 'schedule.dart';
 import 'me.dart';
 import 'home.dart';
 import 'track.dart';
@@ -345,15 +347,17 @@ class PahalaApp extends StatelessWidget {
       title: 'PAHaLA',
       theme: ThemeData(
         fontFamily: 'Proxima Nova',
-        primarySwatch: Colors.lightGreen,
-        primaryColor: Colors.green,
-        accentColor: Colors.lime,
+        primarySwatch: BaseColorAssets.materialPrimary,
+        primaryColor: BaseColorAssets.materialSecondary,
+        accentColor: BaseColorAssets.materialTertiary,
+        brightness: globalBrightness,
       ),
       home: SafeArea(child: Home()),
       routes: <String, WidgetBuilder>{
-        '/login': (BuildContext context) => WelcomePage(),
-        '/signup': (BuildContext context) => SignUpPage(),
-        '/blue': (BuildContext context) => FlutterBlueApp(),
+        '/login':    (BuildContext context) => WelcomePage(),
+        '/signup':   (BuildContext context) => SignUpPage(),
+        '/schedule': (BuildContext context) => SchedulePage(),
+        '/blue':     (BuildContext context) => FlutterBlueApp(),
       },
     );
   }
@@ -372,12 +376,15 @@ class _HomeState extends State<Home> {
       Future(() {
         Navigator.pushReplacementNamed(context, '/login');
       });
+    } else {
+      firebaseUser.getIdToken(refresh: false).then(
+          (r) { print("GET ID TOKEN: " + r); }
+      );
     }
     if(redirectOnce){
       Future(() {
         Navigator.pushReplacementNamed(context, '/signup');
       });
-      redirectOnce = false;
     }
   }
   final List<Widget> _children = [
