@@ -9,6 +9,7 @@ import 'package:http/http.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'globals.dart';
 import 'asset.dart';
 import 'models.dart';
 
@@ -20,6 +21,7 @@ class _HomePageState extends State<HomePage> {
   List<NewsMenu> _newsData;
   List<NewsMenu> _menuData;
   Weather _weatherData;
+  Quote _quote;
   final GoogleSignIn _googleSignIn = GoogleSignIn();
   final FirebaseAuth _auth = FirebaseAuth.instance;
   @override
@@ -29,19 +31,24 @@ class _HomePageState extends State<HomePage> {
       Position position = await Geolocator().getCurrentPosition(desiredAccuracy: LocationAccuracy.medium);
 //      print("POSITION lon: " + position.longitude.toString() + ", lat: " + position.latitude.toString());
 //      print("ENDPOINT: " + APIEndpointAssets.weatherService);
-      return post(APIEndpointAssets.weatherService, body: {'lon': position.longitude.toString(), 'lat': position.latitude.toString()});
+      return post(APIEndpointAssets.weatherService, body: {'idToken': await firebaseUser.getIdToken(), 'lon': position.longitude.toString(), 'lat': position.latitude.toString()});
     }
-    fetchWeather().then( (r) { setState(() { _weatherData = Weather.weatherFromResponse(r.body); }); } );
-    Future<Response> fetchNews() => get(APIEndpointAssets.newsService);
-    fetchNews().then( (r) { setState(() { _newsData = NewsMenu.newsFromResponse(r.body); }); } );
-    Future<Response> fetchMenu() => get(APIEndpointAssets.menuService);
-    fetchMenu().then( (r) { setState(() { _menuData = NewsMenu.menuFromResponse(r.body); }); } );
+    fetchWeather().then( (r) { setState(() { _weatherData = Weather.weatherFromResponse(r.body); }); });
+    Future<Response> fetchQuote() async {return post(APIEndpointAssets.quoteService, body: {'idToken': await firebaseUser.getIdToken()}); }
+    fetchQuote().then( (r) {
+      print("INI QUOTE YAH: " + r.body);
+      setState(() { _quote = Quote.quoteFromResponse(r.body); });
+    });
+    Future<Response> fetchNews() async { return post(APIEndpointAssets.newsService, body: {'idToken': await firebaseUser.getIdToken()}); }
+    fetchNews().then( (r) { setState(() { _newsData = NewsMenu.newsFromResponse(r.body); }); });
+    Future<Response> fetchMenu() async { return post(APIEndpointAssets.menuService, body: {'idToken': await firebaseUser.getIdToken()}); }
+    fetchMenu().then( (r) { setState(() { _menuData = NewsMenu.menuFromResponse(r.body); }); });
   }
   @override
   Widget build(BuildContext context) {
-    return (_newsData != null && _menuData != null && _weatherData != null) ? ListView(
+    return (_weatherData != null && _quote != null && _newsData != null && _menuData != null) ? ListView(
       children: <Widget>[
-        WeatherCard(weather: _weatherData,),
+        WeatherCard(weather: _weatherData, quote: _quote,),
         Container(
           constraints: BoxConstraints.expand(height: 180.0),
           child: Row(
@@ -122,7 +129,10 @@ class _HomePageState extends State<HomePage> {
                           await _googleSignIn.signOut();
                         }
                         _handleSignOut().then(
-                          (_) => Scaffold.of(context).showSnackBar(SnackBar(content: Text("Logged out")))
+                          (_) {
+                            Scaffold.of(context).showSnackBar(SnackBar(content: Text("Logged out")));
+                            Navigator.pushReplacementNamed(context, '/login ');
+                          }
                         );
                       },
                     ),
@@ -138,8 +148,9 @@ class _HomePageState extends State<HomePage> {
 }
 
 class WeatherCard extends StatelessWidget {
-  const WeatherCard({Key key, this.weather}) : super(key: key);
+  const WeatherCard({Key key, this.weather, this.quote}) : super(key: key);
   final Weather weather;
+  final Quote quote;
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -178,7 +189,7 @@ class WeatherCard extends StatelessWidget {
               ListTile(
                 contentPadding: EdgeInsets.only(left: 125.0),
                 title: Text(weather != null ? weather.title : ""),
-                subtitle: Text('Lorem ipsum dolor sit amet'),
+                subtitle: Tooltip(message: quote.author, child: Text(quote.quote),),
               ),
               Container(
                 margin: EdgeInsets.symmetric(horizontal: 15.0, vertical: 5.0),
@@ -264,31 +275,42 @@ class _NodeControlCardState extends State<NodeControlCard> {
   @override
   Widget build(BuildContext context) {
     return Card(
-        margin: EdgeInsets.only(left: 15.0, top: 5.0, bottom: 5.0, right: 7.5),
-        child: Container(
-          margin: EdgeInsets.only(left: 10.0, top: 5.0, bottom: 5.0),
-          child: Column(
-            children: <Widget>[
-              DropdownButton(
-                items: [
-                  DropdownMenuItem(child: Text(_lampName[0]), value: 0,),
-                  DropdownMenuItem(child: Text(_lampName[1]), value: 1,),
-                ],
-                onChanged: (v) { setState(() { _value = v; }); },
-                value: _value,
-              ),
-              IconButton(
-                icon: Icon(FontAwesomeIcons.lightbulb, color: _isOn[_value] ? BaseColorAssets.accent60 : Colors.grey,),
-                onPressed: () { setState(() { _isOn[_value] = !_isOn[_value]; }); },
-                iconSize: 50.0,
-              ),
-              Container(
-                margin: EdgeInsets.all(5.0),
-                child: Text("Turned " + (_isOn[_value] ? "on" : "off"), textAlign: TextAlign.center, style: TextStyle(color: Colors.grey),),
-              ),
-            ],
-          ),
-        )
+      margin: EdgeInsets.only(left: 15.0, top: 5.0, bottom: 5.0, right: 7.5),
+      child: Container(
+        margin: EdgeInsets.only(left: 10.0, top: 5.0, bottom: 5.0),
+        child: Column(
+          children: <Widget>[
+            DropdownButton(
+              items: [
+                DropdownMenuItem(child: Text(_lampName[0]), value: 0,),
+                DropdownMenuItem(child: Text(_lampName[1]), value: 1,),
+              ],
+              onChanged: (v) { setState(() { _value = v; }); },
+              value: _value,
+            ),
+            IconButton(
+              icon: Icon(FontAwesomeIcons.lightbulb, color: _isOn[_value] ? BaseColorAssets.accent60 : Colors.grey,),
+              onPressed: () {
+                Future<Response> turnLamp(v) async {
+                  print("LAMP SERVICE: " + APIEndpointAssets.nodeLampService);
+                  return post(APIEndpointAssets.nodeLampService, body: {'idToken': await firebaseUser.getIdToken(), 'flag': v.toString()});
+                }
+                turnLamp(!_isOn[_value]).then(
+                  (v) {
+                    print("RESPONSE SERVER LAMP: " + v.body);
+                    setState(() { _isOn[_value] = v.body == "true"; });
+                  }
+                );
+              },
+              iconSize: 50.0,
+            ),
+            Container(
+              margin: EdgeInsets.all(5.0),
+              child: Text("Turned " + (_isOn[_value] ? "on" : "off"), textAlign: TextAlign.center, style: TextStyle(color: Colors.grey),),
+            ),
+          ],
+        ),
+      )
     );
   }
 }

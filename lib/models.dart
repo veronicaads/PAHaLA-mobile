@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'globals.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:html_unescape/html_unescape.dart';
 
 class Authorization {
   static Future<FirebaseUser> getCurrentUser() async {
@@ -71,6 +72,20 @@ class Weather {
       pressure: v['main']['pressure'],
       cloud: v['clouds']['all'],
       visibility: v['visibility']
+    );
+  }
+}
+
+class Quote {
+  Quote({this.author, this.quote});
+  final String author;
+  final String quote;
+  static Quote quoteFromResponse(String json){
+    var decoded = jsonDecode(json);
+    var unescape = new HtmlUnescape();
+    return Quote(
+      author: decoded['author'].join(", "),
+      quote: unescape.convert(decoded['quote'])
     );
   }
 }

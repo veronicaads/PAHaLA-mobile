@@ -12,12 +12,13 @@ class SignUpPage extends StatefulWidget{
 
 class _SignUpPageState extends State<SignUpPage>{
   final _titles = {
-    'Male': ['Mr'],
-    'Female': ['Ms', 'Mrs']
+    'M': ['Mr'],
+    'F': ['Ms', 'Mrs']
   };
   String _title = 'Mr';
   String _nickname = "";
-  String _gender = "Male";
+  String _genderString = "Male";
+  String _gender = "M";
   double _height = 160.0;
   DateTime _dob = DateTime.now();
   @override
@@ -48,14 +49,14 @@ class _SignUpPageState extends State<SignUpPage>{
                   children: <Widget>[
                     MaterialSwitch(
                       options: ["Male", "Female"],
-                      selectedOption: _gender,
+                      selectedOption: _genderString,
                       onSelect: (v) {
                         setState(() {
-                          _gender = v;
+                          _gender = v == "Male" ? "M" : "F";
                           _title = _titles[_gender][0];
                         });
                       },
-                      selectedBackgroundColor: _gender == "Male" ? Colors.blue : Colors.pinkAccent,
+                      selectedBackgroundColor: _gender == "M" ? Colors.blue : Colors.pinkAccent,
                       selectedTextColor: Colors.white,
                       margin: EdgeInsets.symmetric(horizontal: 25.0, vertical: 5.0),
                     ),

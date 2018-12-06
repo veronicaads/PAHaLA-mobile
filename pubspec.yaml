@@ -46,6 +46,7 @@ dependencies:
   date_format: ^1.0.5
   numberpicker: ^0.1.7
   material_switch: ^0.0.8
+  html_unescape: ^1.0.1+2
 
 dev_dependencies:
   flutter_test:
