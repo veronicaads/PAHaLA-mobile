@@ -2,6 +2,8 @@ import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:datetime_picker_formfield/time_picker_formfield.dart';
 import 'package:material_switch/material_switch.dart';
+import 'package:http/http.dart';
+import 'globals.dart';
 import 'asset.dart';
 
 class SchedulePage extends StatefulWidget{
@@ -89,7 +91,17 @@ class _SchedulePageState extends State<SchedulePage>{
                         ),
                       ),
                       onPressed: () {
-                        Future( () { Navigator.pushReplacementNamed(context, '/'); } );
+                        String f(TimeOfDay t) {
+                          return t.hour.toString().padLeft(2, '0') + ':' + t.minute.toString().padLeft(2, '0') + ":00";
+                        }
+                        Future<Response> setAlarm() async { return post(APIEndpointAssets.userAlarmService, body: {
+                          'idToken': await firebaseUser.getIdToken(),
+                          'uuid': firebaseUser.uid,
+                          'wd': f(_weekDayAlarm),
+                          'we': f(_weekEndAlarm),
+                          'ph': f(_publicHolidayAlarm),
+                        }); }
+                        setAlarm().then( (r) { Future( () { Navigator.pushReplacementNamed(context, '/'); }); });
                       },
                     ),
                   ],

@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
+import 'globals.dart';
+import 'asset.dart';
 
 class MePage extends StatefulWidget {
   _MePageState createState() => _MePageState();
@@ -7,53 +10,95 @@ class MePage extends StatefulWidget {
 class _MePageState extends State<MePage> {
   @override
   Widget build(BuildContext context) {
-    return Stack(
+    return Column(
       children: <Widget>[
-        Container(
-          constraints: BoxConstraints.expand(height: 175.0,),
-          decoration: BoxDecoration(
-            image: DecorationImage(
-              image: AssetImage('assets/images/me_bg.png'),
-              fit: BoxFit.cover,
+        Stack(
+          children: <Widget>[
+            Container(
+              constraints: BoxConstraints.expand(height: 175.0,),
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage('assets/images/me_bg.png'),
+                  fit: BoxFit.cover,
+                ),
+                boxShadow: <BoxShadow>[BoxShadow(blurRadius: 5.0)],
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: <Widget>[
+                  IconButton(
+                    icon: Icon(Icons.settings),
+                    onPressed: () {
+                      Scaffold.of(context).showSnackBar(SnackBar(content: Text('Settings'),));
+                    },
+                    color: Colors.white70,
+                  ),
+                ],
+              ),
             ),
-            boxShadow: <BoxShadow>[BoxShadow(blurRadius: 5.0)],
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: <Widget>[
-              IconButton(
-                icon: Icon(Icons.settings),
-                onPressed: () {
-                  Scaffold.of(context).showSnackBar(SnackBar(content: Text('Settings'),));
-                },
-                color: Colors.white70,
-              ),
-            ],
-          ),
+            Container(
+              padding: EdgeInsets.only(top: 15.0,),
+              child: Center(
+                child: Column(
+                  children: <Widget>[
+                    Container(
+                      constraints: BoxConstraints.expand(width: 100.0, height: 100.0,),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        image: DecorationImage(
+                          image: firebaseUser.photoUrl == null ? AssetImage('assets/images/empty_avatar.png') : NetworkImage(firebaseUser.photoUrl),
+                        ),
+                        border: Border.all(color: BaseColorAssets.accent40, width: 2.0),
+                      ),
+                    ),
+                    Text(firebaseUser.displayName,
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24.0, color: Colors.white, ),
+                    ),
+                    Text(firebaseUser.email,
+                      style: TextStyle(color: Colors.white, ),
+                    ),
+                  ],
+                ),
+              )
+            ),
+          ],
         ),
-        Container(
-          padding: EdgeInsets.only(top: 100.0,),
-          child: Column(
+        Expanded(
+          child: ListView(
             children: <Widget>[
-              Center(
-                child: Text('<NAME>',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 32.0,
-                    color: Colors.white,
-                  ),
-                ),
+              FlatButton(
+                child: Text('Change Schedule'),
+                onPressed: () {
+                  Future(() { Navigator.pushNamed(context, '/schedule'); });
+                },
               ),
-              Container(
-                constraints: BoxConstraints.expand(width: 100.0, height: 100.0,),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  image: DecorationImage(
-                    image: AssetImage('assets/images/empty_avatar.png'),
-                  ),
-                  border: Border.all(color: Colors.white70, width: 5.0),
-                ),
+              FlatButton(
+                child: Text('Complete Sign Up'),
+                onPressed: () {
+                  Future(() { Navigator.pushNamed(context, '/signup'); });
+                },
+              ),
+              FlatButton(
+                child: Text('Logout from this Account'),
+                onPressed: () {
+                  Future<Null> handleSignOut() async {
+                    await firebaseAuth.signOut();
+                    await googleSignIn.signOut();
+                  }
+                  handleSignOut().then(
+                    (_) {
+                      Scaffold.of(context).showSnackBar(SnackBar(content: Text("Logged out")));
+                      Future(() { Navigator.pushReplacementNamed(context, '/login '); });
+                    }
+                  );
+                },
+              ),
+              FlatButton(
+                child: Text('!DEBUG! Bluetooth !DEBUG!', style: TextStyle(color: Colors.black12),),
+                onPressed: () {
+                  Future(() { Navigator.of(context).pushNamed('/blue'); });
+                },
               ),
             ],
           ),

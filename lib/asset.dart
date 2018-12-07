@@ -5,7 +5,8 @@ class APIEndpointAssets {
   static final domain = 'pahala.xyz';
   static final baseURL = APIEndpointAssets.protocol + APIEndpointAssets.domain;
   static final userService = APIEndpointAssets.baseURL + '/user';
-  static final userTokenService = APIEndpointAssets.baseURL + '/token';
+  static final userAlarmService = APIEndpointAssets.userService + '/alarm';
+//  static final userTokenService = APIEndpointAssets.baseURL + '/token';
   static final weatherService = APIEndpointAssets.baseURL + '/weather';
   static final quoteService = APIEndpointAssets.baseURL + '/quote';
   static final newsService = APIEndpointAssets.baseURL + '/news';
@@ -13,6 +14,7 @@ class APIEndpointAssets {
   static final nodeService = APIEndpointAssets.baseURL + '/node';
   static final nodeLampService = APIEndpointAssets.nodeService + '/lamp';
   static final nodeScaleService = APIEndpointAssets.nodeService + '/scale';
+  static final nodeSleepService = APIEndpointAssets.nodeService + '/sleep';
   // static final statService = APIEndpointAssets.baseURL + '/stat';
 }
 

@@ -22,8 +22,6 @@ class _HomePageState extends State<HomePage> {
   List<NewsMenu> _menuData;
   Weather _weatherData;
   Quote _quote;
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
-  final FirebaseAuth _auth = FirebaseAuth.instance;
   @override
   void initState() {
     super.initState();
@@ -36,7 +34,7 @@ class _HomePageState extends State<HomePage> {
     fetchWeather().then( (r) { setState(() { _weatherData = Weather.weatherFromResponse(r.body); }); });
     Future<Response> fetchQuote() async {return post(APIEndpointAssets.quoteService, body: {'idToken': await firebaseUser.getIdToken()}); }
     fetchQuote().then( (r) {
-      print("INI QUOTE YAH: " + r.body);
+//      print("INI QUOTE YAH: " + r.body);
       setState(() { _quote = Quote.quoteFromResponse(r.body); });
     });
     Future<Response> fetchNews() async { return post(APIEndpointAssets.newsService, body: {'idToken': await firebaseUser.getIdToken()}); }
@@ -54,94 +52,12 @@ class _HomePageState extends State<HomePage> {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
-              Expanded(
-                child: NodeControlCard(),
-              ),
-              Expanded(
-                child: SleepCard(alarmTime: "7:00 AM",),
-              ),
+              Expanded( child: NodeControlCard(), ),
+              Expanded( child: SleepCard(alarmTime: "7:00 AM",), ),
             ],
           ),
         ),
         NewsMenuCard(menu: _menuData, news: _newsData,),
-        Card(
-          margin: EdgeInsets.symmetric(horizontal: 15.0, vertical: 5.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              ButtonTheme.bar( // make buttons use the appropriate styles for cards
-                child: ButtonBar(
-                  children: <Widget>[
-                    FlatButton(
-                      child: Text('Schedule'),
-                      onPressed: () {
-                        Future(() {
-                          Navigator.pushNamed(context, '/schedule');
-                        });
-                      },
-                    ),
-                    FlatButton(
-                      child: Text('Sign Up'),
-                      onPressed: () {
-                        Future(() {
-                          Navigator.pushNamed(context, '/signup');
-                        });
-                      },
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-        Card(
-          margin: EdgeInsets.symmetric(horizontal: 15.0, vertical: 5.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              ButtonTheme.bar( // make buttons use the appropriate styles for cards
-                child: ButtonBar(
-                  children: <Widget>[
-                    FlatButton(
-                      child: Text('POST'),
-                      onPressed: () {
-                        Future<Response> fetchPost() {
-                          return post('https://pahala.xyz/hello', body: {'names': 'SK'});
-                        }
-                        fetchPost().then(
-                          (r) => Scaffold.of(context).showSnackBar(SnackBar(content: Text(r.body),))
-                        );
-                      },
-                    ),
-                    FlatButton(
-                      child: Text('BT'),
-                      onPressed: () {
-                        Future(() {
-                          Navigator.of(context).pushNamed('/blue');
-                        });
-                      },
-                    ),
-                    FlatButton(
-                      child: Text('Logout'),
-                      onPressed: () {
-                        Future<Null> _handleSignOut() async {
-                          await _auth.signOut();
-                          await _googleSignIn.signOut();
-                        }
-                        _handleSignOut().then(
-                          (_) {
-                            Scaffold.of(context).showSnackBar(SnackBar(content: Text("Logged out")));
-                            Navigator.pushReplacementNamed(context, '/login ');
-                          }
-                        );
-                      },
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
       ],
     ) : SpinKitDoubleBounce(color: BaseColorAssets.primary60, size: 200.0,);
   }
@@ -272,6 +188,7 @@ class _NodeControlCardState extends State<NodeControlCard> {
   int _value = 0;
   List<String> _lampName = ["Lamp 1", "Lamp 2"];
   List<bool> _isOn = [false, false];
+  bool _isLoading = false;
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -288,25 +205,29 @@ class _NodeControlCardState extends State<NodeControlCard> {
               onChanged: (v) { setState(() { _value = v; }); },
               value: _value,
             ),
-            IconButton(
+            _isLoading == false ? IconButton(
               icon: Icon(FontAwesomeIcons.lightbulb, color: _isOn[_value] ? BaseColorAssets.accent60 : Colors.grey,),
               onPressed: () {
+                setState(() { _isLoading = true; });
                 Future<Response> turnLamp(v) async {
-                  print("LAMP SERVICE: " + APIEndpointAssets.nodeLampService);
-                  return post(APIEndpointAssets.nodeLampService, body: {'idToken': await firebaseUser.getIdToken(), 'flag': v.toString()});
+//                  print("LAMP SERVICE: " + APIEndpointAssets.nodeLampService);
+                  return post(APIEndpointAssets.nodeLampService, body: {'idToken': await firebaseUser.getIdToken(), 'uuid': firebaseUser.uid, 'flag': v.toString()});
                 }
                 turnLamp(!_isOn[_value]).then(
                   (v) {
-                    print("RESPONSE SERVER LAMP: " + v.body);
-                    setState(() { _isOn[_value] = v.body == "true"; });
+//                    print("RESPONSE SERVER LAMP: " + v.body);
+                    setState(() { _isOn[_value] = v.body == "true"; _isLoading = false; });
                   }
                 );
               },
               iconSize: 50.0,
+            ) : SpinKitRipple(
+              size: 66.0,
+              color: BaseColorAssets.primary60,
             ),
             Container(
               margin: EdgeInsets.all(5.0),
-              child: Text("Turned " + (_isOn[_value] ? "on" : "off"), textAlign: TextAlign.center, style: TextStyle(color: Colors.grey),),
+              child: Text((_isLoading ? "Turning " : "Turned ") + (_isOn[_value] ^ _isLoading ? "on" : "off"), textAlign: TextAlign.center, style: TextStyle(color: Colors.grey),),
             ),
           ],
         ),
@@ -329,7 +250,20 @@ class SleepCard extends StatelessWidget {
           ),
           IconButton(
             icon: Icon(FontAwesomeIcons.bed, color: BaseColorAssets.secondary100,),
-            onPressed: () {  },
+            onPressed: () {
+              Future<Response> goToSleep() async {
+                return post(APIEndpointAssets.nodeSleepService, body: {
+                  'idToken': await firebaseUser.getIdToken(),
+                  'uuid': firebaseUser.uid,
+                  'flag': 'false',
+                });
+              }
+              goToSleep().then(
+                (r) {
+                  Scaffold.of(context).showSnackBar(SnackBar(content: Text('Zzz...'),));
+                }
+              );
+            },
             iconSize: 50.0,
           ),
           Container(
