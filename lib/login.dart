@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
-import 'models.dart';
 import 'asset.dart';
 import 'globals.dart';
 
@@ -10,16 +9,6 @@ class WelcomePage extends StatefulWidget {
 }
 
 class _WelcomePageState extends State<WelcomePage> {
-  @override
-  void initState() {
-    super.initState();
-    Authorization.getCurrentUser().then(
-      (u) {
-        setState(() { firebaseUser = u; });
-        if(firebaseUser != null) Navigator.pushReplacementNamed(context, '/');
-      }
-    );
-  }
   @override
   Widget build(BuildContext context) {
     return Material(
@@ -56,10 +45,8 @@ class _WelcomePageState extends State<WelcomePage> {
                 padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 12.5),
                 icon: Image.asset(VendorAsset.googleFav, height: 24.0, width: 24.0,),
                 onPressed: () {
-                  Authorization.handleSignIn().then((v) {
-                    if(v) {
-                      Navigator.pushReplacementNamed(context, '/');
-                    }
+                  user.handleSignIn().then((v) {
+                    if(v) { Navigator.pushReplacementNamed(context, '/'); }
                   });
                 },
                 label: Text("Sign in with Google", style: TextStyle(color: BaseColorAssets.gray100, fontWeight: FontWeight.bold),),

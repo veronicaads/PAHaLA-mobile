@@ -1,33 +1,59 @@
 import 'dart:convert';
-import 'globals.dart';
+import 'package:http/http.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:html_unescape/html_unescape.dart';
+import 'asset.dart';
 
-class Authorization {
-  static Future<FirebaseUser> getCurrentUser() async {
-    FirebaseUser user = await FirebaseAuth.instance.currentUser();
-    return user;
+class UserModel {
+  UserModel({this.height, this.schedule});
+  double height;
+  Map<String, dynamic> schedule;
+}
+
+class SystemUser {
+  static GoogleSignIn googleSignIn = GoogleSignIn();
+  static FirebaseAuth firebaseAuth = FirebaseAuth.instance;
+  GoogleSignInAccount account;
+  GoogleSignInAuthentication auth;
+  FirebaseUser user;
+  UserModel model;
+  Future _done;
+  SystemUser() {
+    _done = _init();
   }
-  static Future<bool> handleSignIn() async {
-    googleAccount = await googleSignIn.signIn();
-    if(googleAccount != null){
-      googleAuth = await googleAccount.authentication;
+  Future _init() async {
+    user = await FirebaseAuth.instance.currentUser();
+    await handleSignIn();
+    model = await fetchUserModel();
+  }
+  Future get initDone => _done;
+  Future<UserModel> fetchUserModel() async {
+    Response u = await post(APIEndpointAssets.userDataService, body: {'idToken': await user.getIdToken()});
+    Map<String, dynamic> json = jsonDecode(u.body)['data'];
+    return UserModel(height: json['height'], schedule: json['schedule']);
+  }
+  Future<bool> handleSignIn() async {
+    account = await googleSignIn.signIn();
+    if(account != null){
+      auth = await account.authentication;
       // print("TOKEN: "  + googleAuth.accessToken + ", googleAccount + googleAuth.idToken);
-      firebaseUser = await firebaseAuth.signInWithGoogle(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
+      if(user != null) return true;
+      user = await firebaseAuth.signInWithGoogle(
+        accessToken: auth.accessToken,
+        idToken: auth.idToken,
       );
       // print("UID: " + firebaseUser.uid);
-      if(firebaseUser != null) return true;
+      if(user != null) return true;
       else return false;
     } else return false;
   }
-  static Future<void> handleSignOut() async {
+  Future<void> handleSignOut() async {
     await firebaseAuth.signOut();
-    firebaseUser = null;
+    user = null;
     await googleSignIn.signOut();
-    googleAuth = null;
-    googleAccount = null;
+    auth = null;
+    account = null;
   }
 }
 

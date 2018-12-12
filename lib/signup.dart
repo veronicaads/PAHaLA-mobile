@@ -34,7 +34,7 @@ class _SignUpPageState extends State<SignUpPage>{
               ),
               textAlign: TextAlign.center,
             ),
-            Text(firebaseUser != null ? firebaseUser.displayName : "",
+            Text(user.user != null ? user.user.displayName : "",
               style: TextStyle(
                 fontSize: 24.0,
                 color: BaseColorAssets.secondary100,
@@ -67,7 +67,7 @@ class _SignUpPageState extends State<SignUpPage>{
                           onChanged: (v) { setState(() { _title = v; }); },
                           value: _title,
                         ),
-                        Text(firebaseUser != null ? firebaseUser.displayName : "",
+                        Text(user.user != null ? user.user.displayName : "",
                           style: TextStyle(
                             fontSize: 16.0,
                           ),
@@ -140,9 +140,6 @@ class _SignUpPageState extends State<SignUpPage>{
                         ),
                       ),
                       onPressed: () {
-                        setState(() {
-                          redirectOnce = false;
-                        });
                         Future( () { Navigator.pushReplacementNamed(context, '/'); } );
                       },
                     ),

@@ -1,11 +1,12 @@
 import 'package:intl/intl.dart';
 import 'package:numberpicker/numberpicker.dart';
 import 'package:datetime_picker_formfield/time_picker_formfield.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:material_switch/material_switch.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
-import 'globals.dart';
 import 'asset.dart';
+import 'globals.dart';
 
 class MePage extends StatefulWidget {
   _MePageState createState() => _MePageState();
@@ -32,9 +33,11 @@ class _MePageState extends State<MePage> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: <Widget>[
                   IconButton(
-                    icon: Icon(Icons.settings),
+                    icon: Icon(FontAwesomeIcons.questionCircle),
                     onPressed: () {
-                      Scaffold.of(context).showSnackBar(SnackBar(content: Text('Settings'),));
+                      Future(() {
+                        Navigator.pushNamed(context, '/intro');
+                      });
                     },
                     color: Colors.white70,
                   ),
@@ -51,15 +54,15 @@ class _MePageState extends State<MePage> {
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         image: DecorationImage(
-                          image: firebaseUser.photoUrl == null ? AssetImage('assets/images/empty_avatar.png') : NetworkImage(firebaseUser.photoUrl),
+                          image: user.user.photoUrl == null ? AssetImage('assets/images/empty_avatar.png') : NetworkImage(user.user.photoUrl),
                         ),
                         border: Border.all(color: BaseColorAssets.accent40, width: 2.0),
                       ),
                     ),
-                    Text(firebaseUser.displayName,
+                    Text(user.user.displayName,
                       style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24.0, color: Colors.white, ),
                     ),
-                    Text(firebaseUser.email,
+                    Text(user.user.email,
                       style: TextStyle(color: Colors.white, ),
                     ),
                   ],
@@ -92,11 +95,7 @@ class _MePageState extends State<MePage> {
               FlatButton(
                 child: Text('Logout from this Account'),
                 onPressed: () {
-                  Future<Null> handleSignOut() async {
-                    await firebaseAuth.signOut();
-                    await googleSignIn.signOut();
-                  }
-                  handleSignOut().then(
+                  user.handleSignOut().then(
                     (_) {
                       Scaffold.of(context).showSnackBar(SnackBar(content: Text("Logged out")));
                       Future(() { Navigator.pushReplacementNamed(context, '/login '); });
@@ -207,7 +206,7 @@ class _UpdateSchedulePageState extends State<UpdateSchedulePage>{
                           return t.hour.toString().padLeft(2, '0') + ':' + t.minute.toString().padLeft(2, '0') + ":00";
                         }
                         Future<Response> setAlarm() async { return post(APIEndpointAssets.userAlarmService, body: {
-                          'idToken': await firebaseUser.getIdToken(),
+                          'idToken': await user.user.getIdToken(),
                           'wd': f(_weekDayAlarm),
                           'we': f(_weekEndAlarm),
                           'ph': f(_publicHolidayAlarm),
@@ -295,7 +294,7 @@ class _UpdateHeightPageState extends State<UpdateHeightPage>{
                       ),
                       onPressed: () {
                         Future<Response> setAlarm() async { return post(APIEndpointAssets.userHeightService, body: {
-                          'idToken': await firebaseUser.getIdToken(),
+                          'idToken': await user.user.getIdToken(),
                           'height': _height.toString(),
                         }); }
                         setAlarm().then( (r) { Future( () { Navigator.pushReplacementNamed(context, '/'); }); });

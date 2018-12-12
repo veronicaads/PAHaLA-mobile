@@ -3,8 +3,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:geolocator/geolocator.dart';
@@ -29,17 +27,17 @@ class _HomePageState extends State<HomePage> {
       Position position = await Geolocator().getCurrentPosition(desiredAccuracy: LocationAccuracy.medium);
 //      print("POSITION lon: " + position.longitude.toString() + ", lat: " + position.latitude.toString());
 //      print("ENDPOINT: " + APIEndpointAssets.weatherService);
-      return post(APIEndpointAssets.weatherService, body: {'idToken': await firebaseUser.getIdToken(), 'lon': position.longitude.toString(), 'lat': position.latitude.toString()});
+      return post(APIEndpointAssets.weatherService, body: {'idToken': await user.user.getIdToken(), 'lon': position.longitude.toString(), 'lat': position.latitude.toString()});
     }
     fetchWeather().then( (r) { setState(() { _weatherData = Weather.weatherFromResponse(r.body); }); });
-    Future<Response> fetchQuote() async {return post(APIEndpointAssets.quoteService, body: {'idToken': await firebaseUser.getIdToken()}); }
+    Future<Response> fetchQuote() async {return post(APIEndpointAssets.quoteService, body: {'idToken': await user.user.getIdToken()}); }
     fetchQuote().then( (r) {
 //      print("INI QUOTE YAH: " + r.body);
       setState(() { _quote = Quote.quoteFromResponse(r.body); });
     });
-    Future<Response> fetchNews() async { return post(APIEndpointAssets.newsService, body: {'idToken': await firebaseUser.getIdToken()}); }
+    Future<Response> fetchNews() async { return post(APIEndpointAssets.newsService, body: {'idToken': await user.user.getIdToken()}); }
     fetchNews().then( (r) { setState(() { _newsData = NewsMenu.newsFromResponse(r.body); }); });
-    Future<Response> fetchMenu() async { return post(APIEndpointAssets.menuService, body: {'idToken': await firebaseUser.getIdToken()}); }
+    Future<Response> fetchMenu() async { return post(APIEndpointAssets.menuService, body: {'idToken': await user.user.getIdToken()}); }
     fetchMenu().then( (r) { setState(() { _menuData = NewsMenu.menuFromResponse(r.body); }); });
   }
   @override
@@ -214,7 +212,7 @@ class _NodeControlCardState extends State<NodeControlCard> {
                 setState(() { _isLoading = true; });
                 Future<Response> turnLamp(v) async {
 //                  print("LAMP SERVICE: " + APIEndpointAssets.nodeLampService);
-                  return post(APIEndpointAssets.nodeLampService, body: {'idToken': await firebaseUser.getIdToken(), 'flag': v.toString()});
+                  return post(APIEndpointAssets.nodeLampService, body: {'idToken': await user.user.getIdToken(), 'flag': v.toString()});
                 }
                 turnLamp(!_isOn[_value]).then(
                   (v) {
@@ -255,7 +253,7 @@ class SleepCard extends StatelessWidget {
             icon: Icon(FontAwesomeIcons.bed, color: BaseColorAssets.secondary100,),
             onPressed: () {
               Future<Response> goToSleep() async {
-                return post(APIEndpointAssets.nodeSleepService, body: {'idToken': await firebaseUser.getIdToken(), 'flag': false.toString(),});
+                return post(APIEndpointAssets.nodeSleepService, body: {'idToken': await user.user.getIdToken(), 'flag': false.toString(),});
               }
               goToSleep().then((r) { Scaffold.of(context).showSnackBar(SnackBar(content: Text('Zzz...'),)); });
             },

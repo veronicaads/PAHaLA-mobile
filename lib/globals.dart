@@ -1,11 +1,5 @@
-import 'package:google_sign_in/google_sign_in.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'models.dart';
 
-GoogleSignIn googleSignIn = GoogleSignIn();
-FirebaseAuth firebaseAuth = FirebaseAuth.instance;
-GoogleSignInAccount googleAccount;
-GoogleSignInAuthentication googleAuth;
-FirebaseUser firebaseUser;
-bool redirectOnce = true;
+SystemUser user = SystemUser();
 Brightness globalBrightness = Brightness.light;

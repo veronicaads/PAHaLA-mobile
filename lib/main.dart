@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'globals.dart';
 import 'asset.dart';
+import 'intro.dart';
 import 'login.dart';
 import 'signup.dart';
 import 'me.dart';
@@ -24,6 +25,7 @@ class PahalaApp extends StatelessWidget {
       ),
       home: SafeArea(child: Home()),
       routes: <String, WidgetBuilder>{
+        '/intro':    (BuildContext context) => IntroPage(),
         '/login':    (BuildContext context) => WelcomePage(),
         '/signup':   (BuildContext context) => SignUpPage(),
         '/schedule': (BuildContext context) => UpdateSchedulePage(),
@@ -43,15 +45,16 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
-    if(firebaseUser == null){
-      Future(() {
+    Future(() async {
+      await user.initDone;
+      if(user.user == null){
         Navigator.pushReplacementNamed(context, '/login');
-      });
-    } else {
-      firebaseUser.getIdToken(refresh: true).then(
-        (r) { print("GET ID TOKEN: " + r); }
-      );
-    }
+      } else {
+        user.user.getIdToken(refresh: true).then(
+          (r) { print("GET ID TOKEN: " + r); }
+        );
+      }
+    });
   }
   final List<Widget> _children = [
     MePage(),
