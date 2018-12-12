@@ -3,7 +3,6 @@ import 'globals.dart';
 import 'asset.dart';
 import 'login.dart';
 import 'signup.dart';
-import 'schedule.dart';
 import 'me.dart';
 import 'home.dart';
 import 'track.dart';
@@ -27,7 +26,8 @@ class PahalaApp extends StatelessWidget {
       routes: <String, WidgetBuilder>{
         '/login':    (BuildContext context) => WelcomePage(),
         '/signup':   (BuildContext context) => SignUpPage(),
-        '/schedule': (BuildContext context) => SchedulePage(),
+        '/schedule': (BuildContext context) => UpdateSchedulePage(),
+        '/height':   (BuildContext context) => UpdateHeightPage(),
         '/blue':     (BuildContext context) => FlutterBlueApp(),
       },
     );
@@ -52,11 +52,6 @@ class _HomeState extends State<Home> {
         (r) { print("GET ID TOKEN: " + r); }
       );
     }
-//    if(redirectOnce){
-//      Future(() {
-//        Navigator.pushReplacementNamed(context, '/signup');
-//      });
-//    }
   }
   final List<Widget> _children = [
     MePage(),

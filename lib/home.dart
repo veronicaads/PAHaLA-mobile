@@ -104,11 +104,11 @@ class WeatherCard extends StatelessWidget {
             children: <Widget>[
               ListTile(
                 contentPadding: EdgeInsets.only(left: 125.0),
-                title: Text(weather != null ? weather.title : ""),
-                subtitle: Tooltip(message: quote.author, child: Text(quote.quote),),
+                title: Text(weather != null ? weather.title : "", style: TextStyle(fontSize: 18.0),),
+                subtitle: Text(weather != null ? weather.desc : ""),
               ),
               Container(
-                margin: EdgeInsets.symmetric(horizontal: 15.0, vertical: 5.0),
+                margin: EdgeInsets.only(left: 15.0, right: 15.0, top: 5.0, bottom: 20.0),
                 child: Table(
                   defaultColumnWidth: FlexColumnWidth(),
                   columnWidths: {0: FractionColumnWidth(0.4), 1: FractionColumnWidth(0.2), 2: FractionColumnWidth(0.4)},
@@ -162,7 +162,10 @@ class WeatherDetail extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: <Widget>[
-        Tooltip(message: this.tooltip, child: Icon(this.icon, size: 18.0, color: Colors.grey),),
+        Container(
+          margin: EdgeInsets.symmetric(vertical: 5.0),
+          child: Tooltip(message: this.tooltip, child: Icon(this.icon, size: 20.0, color: Colors.grey),),
+        ),
         glyph == null ? Text(this.val, style: TextStyle(color: Colors.grey)) : Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
@@ -211,7 +214,7 @@ class _NodeControlCardState extends State<NodeControlCard> {
                 setState(() { _isLoading = true; });
                 Future<Response> turnLamp(v) async {
 //                  print("LAMP SERVICE: " + APIEndpointAssets.nodeLampService);
-                  return post(APIEndpointAssets.nodeLampService, body: {'idToken': await firebaseUser.getIdToken(), 'uuid': firebaseUser.uid, 'flag': v.toString()});
+                  return post(APIEndpointAssets.nodeLampService, body: {'idToken': await firebaseUser.getIdToken(), 'flag': v.toString()});
                 }
                 turnLamp(!_isOn[_value]).then(
                   (v) {
@@ -252,17 +255,9 @@ class SleepCard extends StatelessWidget {
             icon: Icon(FontAwesomeIcons.bed, color: BaseColorAssets.secondary100,),
             onPressed: () {
               Future<Response> goToSleep() async {
-                return post(APIEndpointAssets.nodeSleepService, body: {
-                  'idToken': await firebaseUser.getIdToken(),
-                  'uuid': firebaseUser.uid,
-                  'flag': 'false',
-                });
+                return post(APIEndpointAssets.nodeSleepService, body: {'idToken': await firebaseUser.getIdToken(), 'flag': false.toString(),});
               }
-              goToSleep().then(
-                (r) {
-                  Scaffold.of(context).showSnackBar(SnackBar(content: Text('Zzz...'),));
-                }
-              );
+              goToSleep().then((r) { Scaffold.of(context).showSnackBar(SnackBar(content: Text('Zzz...'),)); });
             },
             iconSize: 50.0,
           ),
@@ -283,9 +278,9 @@ class NewsMenuCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: EdgeInsets.symmetric(horizontal: 15.0, vertical: 5.0),
+      margin: EdgeInsets.only(left: 15.0, right: 15.0, top: 5.0, bottom: 20.0),
       child: AspectRatio(
-        aspectRatio: 1.5,
+        aspectRatio: 1.3,
         child: Swiper(
           itemBuilder: (BuildContext context, int index) {
             var scenes = <Widget>[

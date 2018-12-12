@@ -7,6 +7,7 @@ class APIEndpointAssets {
   static final userService = APIEndpointAssets.baseURL + '/user';
   static final userAlarmService = APIEndpointAssets.userService + '/alarm';
 //  static final userTokenService = APIEndpointAssets.baseURL + '/token';
+  static final userHeightService = APIEndpointAssets.userService + '/height';
   static final weatherService = APIEndpointAssets.baseURL + '/weather';
   static final quoteService = APIEndpointAssets.baseURL + '/quote';
   static final newsService = APIEndpointAssets.baseURL + '/news';

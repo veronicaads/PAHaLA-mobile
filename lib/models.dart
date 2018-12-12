@@ -57,7 +57,7 @@ class Weather {
   final int cloud;
   final int visibility;
   factory Weather.weatherFromResponse(String json){
-    var v = jsonDecode(json);
+    var v = jsonDecode(json)['data'];
     return Weather(
       lon: v['coord']['lon'],
       lat: v['coord']['lat'],
@@ -81,7 +81,7 @@ class Quote {
   final String author;
   final String quote;
   static Quote quoteFromResponse(String json){
-    var decoded = jsonDecode(json);
+    var decoded = jsonDecode(json)['data'];
     var unescape = new HtmlUnescape();
     return Quote(
       author: decoded['author'].join(", "),
@@ -96,44 +96,28 @@ class NewsMenu {
   final String desc;
   final String picture;
   final String url;
-  factory NewsMenu.newsFromJson(Map<String, dynamic> v){
-    return NewsMenu(
-      title: v['title'],
-      desc: v['desc'],
-      picture: v['urlToImage'],
-      url: v['url'],
-    );
-  }
   static List<NewsMenu> newsFromResponse(String json){
     var result = List<NewsMenu>();
-    var decoded = jsonDecode(json)['articles'];
-    for(var article in decoded){
+    var decoded = jsonDecode(json)['data']['articles'];
+    for(var item in decoded){
       result.add(NewsMenu(
-        title: article['title'],
-        desc: article['description'],
-        picture: article['urlToImage'],
-        url: article['url'],
+        title: item['title'],
+        desc: item['description'],
+        picture: item['urlToImage'],
+        url: item['url'],
       ));
     }
     return result;
   }
-  factory NewsMenu.menuFormJson(Map<String, dynamic> v){
-    return NewsMenu(
-      title: v['title'],
-      desc: v['ingredients'],
-      picture: v['thumbnail'],
-      url: v['href'],
-    );
-  }
   static List<NewsMenu> menuFromResponse(String json){
     var result = List<NewsMenu>();
-    var decoded = jsonDecode(json);
-    for(var menu in decoded){
+    var decoded = jsonDecode(json)['data'];
+    for(var item in decoded){
       result.add(NewsMenu(
-        title: menu['title'],
-        desc: menu['ingredients'],
-        picture: menu['thumbnail'],
-        url: menu['href'],
+        title: item['title'],
+        desc: item['ingredients'],
+        picture: item['thumbnail'],
+        url: item['href'],
       ));
     }
     return result;
