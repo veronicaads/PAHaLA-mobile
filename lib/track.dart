@@ -39,9 +39,9 @@ class _TrackPageState extends State<TrackPage> {
 //    return data;
 //  }
   Future<void> refreshData() async {
+    setState(() { _data = _timeline = null; });
     Future<Response> fetchStatistics() async { return post(APIEndpointAssets.userStatisticsService, body: {'idToken': await user.user.getIdToken(), 'month': _selectedMonth.month.toString(), 'year': _selectedMonth.year.toString()}); }
     fetchStatistics().then((r) async {
-      print("STATS: " + r.body);
       setState(() {
         _data = UserStats.userStatFromResponse(r.body);
         _timeline = generateTimeline(_data);
@@ -70,8 +70,6 @@ class _TrackPageState extends State<TrackPage> {
   }
   @override
   Widget build(BuildContext context) {
-//    _data = generatePlaceholderData();
-//    _timeline = generateTimeline(_data);
     return (_earliest != null && _latest != null) ? Column(
       children: <Widget>[
         MonthStrip(
