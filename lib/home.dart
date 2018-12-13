@@ -67,17 +67,14 @@ class _HomePageState extends State<HomePage> {
                 lampSelection: _lampSelection,
                 lampSelect: (v) { setState(() { _lampSelection = v; }); },
                 lampPress: () {
-//                  setState(() { _isLoading = true; });
-//                  Future<Response> turnLamp(v) async {
-////                  print("LAMP SERVICE: " + APIEndpointAssets.nodeLampService);
-//                    return post(APIEndpointAssets.nodeLampService, body: {'idToken': await user.user.getIdToken(), 'flag': v.toString()});
-//                  }
-//                  turnLamp(!_isOn[_value]).then(
-//                    (v) {
-////                    print("RESPONSE SERVER LAMP: " + v.body);
-//                      setState(() { _isOn[_value] = v.body == "true"; _isLoading = false; });
-//                    }
-//                  );
+                  setState(() { _lampData[_lampSelection].isLoading = true; });
+                  Future<Response> turnLamp(v) async { return post(APIEndpointAssets.nodeLampService, body: {'idToken': await user.user.getIdToken(), 'flag': v.toString()}); }
+                  turnLamp(!_lampData[_lampSelection].isOn).then(
+                    (r) {
+                    print("RESPONSE SERVER LAMP: " + r.body);
+                      setState(() { _lampData[_lampSelection].isOn = jsonDecode(r.body)['data']['status_lamp'] == "true"; _lampData[_lampSelection].isLoading = false; });
+                    }
+                  );
                 },
               ), ),
               Expanded( child: SleepCard(alarmTime: _timeFormatter(_nextDayAlarm),), ),
