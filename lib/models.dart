@@ -24,14 +24,15 @@ class SystemUser {
   }
   Future _init() async {
     user = await FirebaseAuth.instance.currentUser();
+    print("GET ID TOKEN: " + await user.getIdToken());
     await handleSignIn();
     model = await fetchUserModel();
   }
   Future get initDone => _done;
   Future<UserModel> fetchUserModel() async {
-    Response u = await post(APIEndpointAssets.userDataService, body: {'idToken': await user.getIdToken()});
-    Map<String, dynamic> json = jsonDecode(u.body)['data'];
-    return UserModel(height: json['height'], schedule: json['schedule']);
+    Response r = await post(APIEndpointAssets.userDataService, body: {'idToken': await user.getIdToken()});
+    Map<String, dynamic> json = jsonDecode(r.body)['data'];
+    return UserModel(height: json['height'] * 1.0, schedule: json['schedule']);
   }
   Future<bool> handleSignIn() async {
     account = await googleSignIn.signIn();
@@ -58,13 +59,30 @@ class SystemUser {
 }
 
 class UserStats {
-  UserStats(this.sleepTs, this.wakeUpTs, this.weight, this.height);
+  UserStats({this.sleepTs, this.wakeUpTs, this.weight, this.height});
   final DateTime sleepTs;
   final DateTime wakeUpTs;
   final double weight;
   final double height;
   int sleepDuration() => wakeUpTs.difference(sleepTs).inMinutes;
   double bmi() => weight / (height * height);
+  static DateTime dateTimeFromIsoString(String iso){
+    var date = iso.split('T')[0].split('-'), time = iso.split('T')[1].split('.')[0].split(':');
+    return DateTime(int.parse(date[0]), int.parse(date[1]), int.parse(date[2]), int.parse(time[0]), int.parse(time[1]), int.parse(time[2]));
+  }
+  static List<UserStats> userStatFromResponse(String json){
+    var result = List<UserStats>();
+    var decoded = jsonDecode(json)['data'];
+    for(var item in decoded){
+      result.add(UserStats(
+        sleepTs: dateTimeFromIsoString(item['sleep']),
+        wakeUpTs: dateTimeFromIsoString(item['wakeup']),
+        height: double.parse(item['height'].toString()) / 100.0,
+        weight: double.parse(item['weight'].toString())
+      ));
+    }
+    return result;
+  }
 }
 
 class Weather {
@@ -106,7 +124,7 @@ class Quote {
   Quote({this.author, this.quote});
   final String author;
   final String quote;
-  static Quote quoteFromResponse(String json){
+  static Quote quoteFromResponse(String json) {
     var decoded = jsonDecode(json)['data'];
     var unescape = new HtmlUnescape();
     return Quote(
@@ -122,7 +140,7 @@ class NewsMenu {
   final String desc;
   final String picture;
   final String url;
-  static List<NewsMenu> newsFromResponse(String json){
+  static List<NewsMenu> newsFromResponse(String json) {
     var result = List<NewsMenu>();
     var decoded = jsonDecode(json)['data']['articles'];
     for(var item in decoded){
@@ -135,7 +153,7 @@ class NewsMenu {
     }
     return result;
   }
-  static List<NewsMenu> menuFromResponse(String json){
+  static List<NewsMenu> menuFromResponse(String json) {
     var result = List<NewsMenu>();
     var decoded = jsonDecode(json)['data'];
     for(var item in decoded){
@@ -146,6 +164,23 @@ class NewsMenu {
         url: item['href'],
       ));
     }
+    return result;
+  }
+}
+
+class LampNode {
+  LampNode({this.name, this.isOn, this.isLoading});
+  String name;
+  bool isOn;
+  bool isLoading;
+  static List<LampNode> lampNodeFromResponse(String json) {
+    var result = List<LampNode>();
+    var decoded = jsonDecode(json)['data'];
+    result.add(LampNode(
+      name: "Lamp",
+      isLoading: false,
+      isOn: decoded['status'],
+    ));
     return result;
   }
 }

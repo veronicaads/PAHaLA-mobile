@@ -1,11 +1,15 @@
 import 'dart:math';
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
 import 'package:charts_flutter/flutter.dart';
 import 'package:month_picker_strip/month_picker_strip.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:timeline/timeline.dart';
 import 'package:timeline/model/timeline_model.dart';
 import 'package:date_format/date_format.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'globals.dart';
 import 'models.dart';
 import 'asset.dart';
 
@@ -14,25 +18,35 @@ class TrackPage extends StatefulWidget {
 }
 
 class _TrackPageState extends State<TrackPage> {
+  DateTime _earliest, _latest;
   DateTime _selectedMonth = DateTime.now();
   List<UserStats> _data;
   List<TimelineModel> _timeline;
-  List<UserStats> generatePlaceholderData() {
-    var r = Random();
-    List<UserStats> data = [];
-    var y = _selectedMonth.year, m = _selectedMonth.month;
-    print("DATE:" + DateTime(y, m+1, 0).toString());
-    var h = DateTime.now().year == y && DateTime.now().month == m ? DateTime.now().day - 1 : DateTime(y, m+1, 0).day;
-    for(var d = 1; d <= h; d++) {
-      var sleepTime = DateTime(y, m, d, 19 + r.nextInt(4), r.nextInt(59), r.nextInt(59));
-      data.add(UserStats(
-        sleepTime,
-        sleepTime.add(Duration(hours: 5 + r.nextInt(4), minutes: r.nextInt(59), seconds: r.nextInt(59))),
-        67 + r.nextDouble() * 5,
-        1.70
-      ));
-    }
-    return data;
+//  List<UserStats> generatePlaceholderData() {
+//    var r = Random();
+//    List<UserStats> data = [];
+//    var y = _selectedMonth.year, m = _selectedMonth.month;
+//    var h = DateTime.now().year == y && DateTime.now().month == m ? DateTime.now().day - 1 : DateTime(y, m+1, 0).day;
+//    for(var d = 1; d <= h; d++) {
+//      var sleepTime = DateTime(y, m, d, 19 + r.nextInt(4), r.nextInt(59), r.nextInt(59));
+//      data.add(UserStats(
+//        sleepTs: sleepTime,
+//        wakeUpTs: sleepTime.add(Duration(hours: 5 + r.nextInt(4), minutes: r.nextInt(59), seconds: r.nextInt(59))),
+//        weight: 67 + r.nextDouble() * 5,
+//        height: 1.70,
+//      ));
+//    }
+//    return data;
+//  }
+  Future<void> refreshData() async {
+    Future<Response> fetchStatistics() async { return post(APIEndpointAssets.userStatisticsService, body: {'idToken': await user.user.getIdToken(), 'month': _selectedMonth.month.toString(), 'year': _selectedMonth.year.toString()}); }
+    fetchStatistics().then((r) async {
+      print("STATS: " + r.body);
+      setState(() {
+        _data = UserStats.userStatFromResponse(r.body);
+        _timeline = generateTimeline(_data);
+      });
+    });
   }
   List<TimelineModel> generateTimeline(List<UserStats> data){
     return data.map((v) {
@@ -44,57 +58,71 @@ class _TrackPageState extends State<TrackPage> {
     }).toList();
   }
   @override
+  void initState() {
+    super.initState();
+    Future<Response> fetchAvailStats() async { return post(APIEndpointAssets.userAvailStatsService, body: {'idToken': await user.user.getIdToken()}); }
+    fetchAvailStats().then((r) { setState(() {
+      var statsAvail = jsonDecode(r.body)['data'];
+      _earliest = DateTime(statsAvail['min_year'], statsAvail['min_month']);
+      _latest   = DateTime(statsAvail['max_year'], statsAvail['max_month']);
+    }); });
+    Future(() async { await refreshData(); });
+  }
+  @override
   Widget build(BuildContext context) {
-    _data = generatePlaceholderData();
-    _timeline = generateTimeline(_data);
-    return Column(
+//    _data = generatePlaceholderData();
+//    _timeline = generateTimeline(_data);
+    return (_earliest != null && _latest != null) ? Column(
       children: <Widget>[
         MonthStrip(
           format: 'MMM yyyy',
-          from: DateTime(2000),
-          to: DateTime.now(),
+          from: _earliest,
+          to: _latest,
           initialMonth: _selectedMonth,
           onMonthChanged: (v) {
             _selectedMonth = v;
-            setState(() {
-              _data = generatePlaceholderData();
-            });
-//            print(_data);
+            Future(() async { await refreshData(); });
           },
           selectedTextStyle: TextStyle(
             fontWeight: FontWeight.bold,
             color: BaseColorAssets.primary100,
           ),
         ),
-        Container(
-          constraints: BoxConstraints.expand(height: 200.0),
-          child: Swiper(
-            itemBuilder: (BuildContext context, int index) {
-              var scenes = <Widget>[
-                SleepScene(data: _data,),
-                WeightScene(data: _data,),
-              ];
-              return scenes[index];
-            },
-            itemCount: 2,
-            viewportFraction: 0.85,
-            scale: 0.9,
-            control: SwiperControl(
-              size: 15.0,
-              color: BaseColorAssets.primary100,
-            ),
+        (_data != null) ? Expanded(
+          child: Column(
+            children: <Widget>[
+              Container(
+                constraints: BoxConstraints.expand(height: 200.0),
+                child: Swiper(
+                  itemBuilder: (BuildContext context, int index) {
+                    var scenes = <Widget>[
+                      SleepScene(data: _data,),
+                      WeightScene(data: _data,),
+                    ];
+                    return scenes[index];
+                  },
+                  itemCount: 2,
+                  viewportFraction: 0.85,
+                  scale: 0.9,
+                  control: SwiperControl(
+                    size: 15.0,
+                    color: BaseColorAssets.primary100,
+                  ),
+                ),
+              ),
+              Expanded(
+                child: TimelineComponent(
+                  timelineList: _timeline,
+                  lineColor: BaseColorAssets.primary100,
+                  headingColor: BaseColorAssets.secondary80,
+                  backgroundColor: Colors.transparent,
+                ),
+              ),
+            ],
           ),
-        ),
-        Expanded(
-          child: TimelineComponent(
-            timelineList: _timeline,
-            lineColor: BaseColorAssets.primary100,
-            headingColor: BaseColorAssets.secondary80,
-            backgroundColor: Colors.transparent,
-          ),
-        ),
+        ) : SpinKitRipple(color: BaseColorAssets.primary60, size: 100.0,),
       ]
-    );
+    ) : SpinKitDoubleBounce(color: BaseColorAssets.primary60, size: 200.0,);
   }
 }
 

@@ -50,9 +50,9 @@ class _HomeState extends State<Home> {
       if(user.user == null){
         Navigator.pushReplacementNamed(context, '/login');
       } else {
-        user.user.getIdToken(refresh: true).then(
-          (r) { print("GET ID TOKEN: " + r); }
-        );
+//        user.user.getIdToken(refresh: true).then(
+//          (r) { print("GET ID TOKEN: " + r); }
+//        );
       }
     });
   }

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -16,33 +17,44 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  List<NewsMenu> _newsData;
-  List<NewsMenu> _menuData;
   Weather _weatherData;
   Quote _quote;
+  List<NewsMenu> _newsData;
+  List<NewsMenu> _menuData;
+  List<LampNode> _lampData;
+  TimeOfDay _nextDayAlarm;
+  Function _timeFormatter = (TimeOfDay t) {
+    return t.hourOfPeriod.toString().padLeft(2, '0') + ':' + t.minute.toString().padLeft(2, '0') + " " + (t.period == DayPeriod.am ? "AM" : "PM");
+  };
+  int _lampSelection = 0;
   @override
   void initState() {
     super.initState();
-    Future<Response> fetchWeather() async {
-      Position position = await Geolocator().getCurrentPosition(desiredAccuracy: LocationAccuracy.medium);
-//      print("POSITION lon: " + position.longitude.toString() + ", lat: " + position.latitude.toString());
-//      print("ENDPOINT: " + APIEndpointAssets.weatherService);
-      return post(APIEndpointAssets.weatherService, body: {'idToken': await user.user.getIdToken(), 'lon': position.longitude.toString(), 'lat': position.latitude.toString()});
-    }
-    fetchWeather().then( (r) { setState(() { _weatherData = Weather.weatherFromResponse(r.body); }); });
-    Future<Response> fetchQuote() async {return post(APIEndpointAssets.quoteService, body: {'idToken': await user.user.getIdToken()}); }
-    fetchQuote().then( (r) {
-//      print("INI QUOTE YAH: " + r.body);
-      setState(() { _quote = Quote.quoteFromResponse(r.body); });
+    Future(() async {
+      await user.initDone;
+      Future<Response> fetchWeather() async {
+        Position position = await Geolocator().getCurrentPosition(desiredAccuracy: LocationAccuracy.medium);
+        return post(APIEndpointAssets.weatherService, body: {'idToken': await user.user.getIdToken(), 'lon': position.longitude.toString(), 'lat': position.latitude.toString()});
+      }
+      fetchWeather().then( (r) { setState(() { _weatherData = Weather.weatherFromResponse(r.body); }); });
+      Future<Response> fetchQuote() async {return post(APIEndpointAssets.quoteService, body: {'idToken': await user.user.getIdToken()}); }
+      fetchQuote().then( (r) { setState(() { _quote = Quote.quoteFromResponse(r.body); }); });
+      Future<Response> fetchNews() async { return post(APIEndpointAssets.newsService, body: {'idToken': await user.user.getIdToken()}); }
+      fetchNews().then( (r) { setState(() { _newsData = NewsMenu.newsFromResponse(r.body); }); });
+      Future<Response> fetchMenu() async { return post(APIEndpointAssets.menuService, body: {'idToken': await user.user.getIdToken()}); }
+      fetchMenu().then( (r) { setState(() { _menuData = NewsMenu.menuFromResponse(r.body); }); });
+      Future<Response> fetchLampStatus() async { return post(APIEndpointAssets.userLampService, body: {'idToken': await user.user.getIdToken()}); }
+      fetchLampStatus().then((r) { setState(() { _lampData = LampNode.lampNodeFromResponse(r.body); }); });
+      Future<Response> fetchNextDayAlarm() async { return post(APIEndpointAssets.userNextAlarmService, body: { 'idToken' : await user.user.getIdToken() }); }
+      fetchNextDayAlarm().then((r) {
+        var time = jsonDecode(r.body)['data']['alarm'].split(':');
+        setState(() { _nextDayAlarm = TimeOfDay(hour: int.parse(time[0]), minute: int.parse(time[1])); });
+      });
     });
-    Future<Response> fetchNews() async { return post(APIEndpointAssets.newsService, body: {'idToken': await user.user.getIdToken()}); }
-    fetchNews().then( (r) { setState(() { _newsData = NewsMenu.newsFromResponse(r.body); }); });
-    Future<Response> fetchMenu() async { return post(APIEndpointAssets.menuService, body: {'idToken': await user.user.getIdToken()}); }
-    fetchMenu().then( (r) { setState(() { _menuData = NewsMenu.menuFromResponse(r.body); }); });
   }
   @override
   Widget build(BuildContext context) {
-    return (_weatherData != null && _quote != null && _newsData != null && _menuData != null) ? ListView(
+    return (_weatherData != null && _quote != null && _newsData != null && _menuData != null && _lampData != null) ? ListView(
       children: <Widget>[
         WeatherCard(weather: _weatherData, quote: _quote,),
         Container(
@@ -50,8 +62,25 @@ class _HomePageState extends State<HomePage> {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
-              Expanded( child: NodeControlCard(), ),
-              Expanded( child: SleepCard(alarmTime: "7:00 AM",), ),
+              Expanded( child: NodeControlCard(
+                lampNode: _lampData,
+                lampSelection: _lampSelection,
+                lampSelect: (v) { setState(() { _lampSelection = v; }); },
+                lampPress: () {
+//                  setState(() { _isLoading = true; });
+//                  Future<Response> turnLamp(v) async {
+////                  print("LAMP SERVICE: " + APIEndpointAssets.nodeLampService);
+//                    return post(APIEndpointAssets.nodeLampService, body: {'idToken': await user.user.getIdToken(), 'flag': v.toString()});
+//                  }
+//                  turnLamp(!_isOn[_value]).then(
+//                    (v) {
+////                    print("RESPONSE SERVER LAMP: " + v.body);
+//                      setState(() { _isOn[_value] = v.body == "true"; _isLoading = false; });
+//                    }
+//                  );
+                },
+              ), ),
+              Expanded( child: SleepCard(alarmTime: _timeFormatter(_nextDayAlarm),), ),
             ],
           ),
         ),
@@ -181,15 +210,12 @@ class WeatherDetail extends StatelessWidget {
   }
 }
 
-class NodeControlCard extends StatefulWidget {
-  _NodeControlCardState createState() => _NodeControlCardState();
-}
-
-class _NodeControlCardState extends State<NodeControlCard> {
-  int _value = 0;
-  List<String> _lampName = ["Lamp 1", "Lamp 2"];
-  List<bool> _isOn = [false, false];
-  bool _isLoading = false;
+class NodeControlCard extends StatelessWidget {
+  NodeControlCard({Key key, this.lampNode, this.lampSelection, this.lampSelect, this.lampPress}) : super(key: key);
+  final List<LampNode> lampNode;
+  final int lampSelection;
+  final Function lampSelect;
+  final Function lampPress;
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -199,28 +225,13 @@ class _NodeControlCardState extends State<NodeControlCard> {
         child: Column(
           children: <Widget>[
             DropdownButton(
-              items: [
-                DropdownMenuItem(child: Text(_lampName[0]), value: 0,),
-                DropdownMenuItem(child: Text(_lampName[1]), value: 1,),
-              ],
-              onChanged: (v) { setState(() { _value = v; }); },
-              value: _value,
+              items: lampNode.asMap().entries.map((v) => DropdownMenuItem(child: Text(v.value.name), value: v.key,)).toList(),
+              value: lampSelection,
+              onChanged: lampSelect,
             ),
-            _isLoading == false ? IconButton(
-              icon: Icon(FontAwesomeIcons.lightbulb, color: _isOn[_value] ? BaseColorAssets.accent60 : Colors.grey,),
-              onPressed: () {
-                setState(() { _isLoading = true; });
-                Future<Response> turnLamp(v) async {
-//                  print("LAMP SERVICE: " + APIEndpointAssets.nodeLampService);
-                  return post(APIEndpointAssets.nodeLampService, body: {'idToken': await user.user.getIdToken(), 'flag': v.toString()});
-                }
-                turnLamp(!_isOn[_value]).then(
-                  (v) {
-//                    print("RESPONSE SERVER LAMP: " + v.body);
-                    setState(() { _isOn[_value] = v.body == "true"; _isLoading = false; });
-                  }
-                );
-              },
+            lampNode[lampSelection].isLoading == false ? IconButton(
+              icon: Icon(FontAwesomeIcons.lightbulb, color: lampNode[lampSelection].isOn ? BaseColorAssets.accent60 : Colors.grey,),
+              onPressed: lampPress,
               iconSize: 50.0,
             ) : SpinKitRipple(
               size: 66.0,
@@ -228,7 +239,9 @@ class _NodeControlCardState extends State<NodeControlCard> {
             ),
             Container(
               margin: EdgeInsets.all(5.0),
-              child: Text((_isLoading ? "Turning " : "Turned ") + (_isOn[_value] ^ _isLoading ? "on" : "off"), textAlign: TextAlign.center, style: TextStyle(color: Colors.grey),),
+              child: Text((lampNode[lampSelection].isLoading ? "Turning " : "Turned ") + (lampNode[lampSelection].isOn ^ lampNode[lampSelection].isLoading ? "on" : "off"),
+                textAlign: TextAlign.center, style: TextStyle(color: Colors.grey),
+              ),
             ),
           ],
         ),

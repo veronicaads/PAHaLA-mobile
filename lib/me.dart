@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:intl/intl.dart';
 import 'package:numberpicker/numberpicker.dart';
 import 'package:datetime_picker_formfield/time_picker_formfield.dart';
@@ -122,11 +123,11 @@ class UpdateSchedulePage extends StatefulWidget{
 }
 
 class _UpdateSchedulePageState extends State<UpdateSchedulePage>{
-  TimeOfDay _weekDayAlarm = TimeOfDay(hour: 7, minute: 0);
-  TimeOfDay _weekEndAlarm = TimeOfDay(hour: 7, minute: 0);
-  TimeOfDay _publicHolidayAlarm = TimeOfDay(hour: 7, minute: 0);
-  String _advancedString = "Basic";
-  bool _advanced = false;
+  TimeOfDay _weekDayAlarm = TimeOfDay(hour: int.parse(user.model.schedule['wd'].split(':')[0]), minute: int.parse(user.model.schedule['wd'].split(':')[1]));
+  TimeOfDay _weekEndAlarm = TimeOfDay(hour: int.parse(user.model.schedule['we'].split(':')[0]), minute: int.parse(user.model.schedule['we'].split(':')[1]));
+  TimeOfDay _publicHolidayAlarm = TimeOfDay(hour: int.parse(user.model.schedule['ph'].split(':')[0]), minute: int.parse(user.model.schedule['ph'].split(':')[1]));
+  String _advancedString = (user.model.schedule['wd'] == user.model.schedule['we'] && user.model.schedule['we'] == user.model.schedule['ph']) ? "Basic" : "Advanced";
+  bool _advanced = !(user.model.schedule['wd'] == user.model.schedule['we'] && user.model.schedule['we'] == user.model.schedule['ph']);
   @override
   Widget build(BuildContext context) {
     return Material(
@@ -211,7 +212,7 @@ class _UpdateSchedulePageState extends State<UpdateSchedulePage>{
                           'we': f(_weekEndAlarm),
                           'ph': f(_publicHolidayAlarm),
                         }); }
-                        setAlarm().then( (r) { Future( () { Navigator.pushReplacementNamed(context, '/'); }); });
+                        setAlarm().then( (r) { Future( () { Navigator.pop(context); }); });
                       },
                     ),
                   ],
@@ -230,7 +231,7 @@ class UpdateHeightPage extends StatefulWidget{
 }
 
 class _UpdateHeightPageState extends State<UpdateHeightPage>{
-  double _height = 160.0;
+  double _height = user.model.height;
   @override
   Widget build(BuildContext context) {
     return Material(
@@ -297,7 +298,8 @@ class _UpdateHeightPageState extends State<UpdateHeightPage>{
                           'idToken': await user.user.getIdToken(),
                           'height': _height.toString(),
                         }); }
-                        setAlarm().then( (r) { Future( () { Navigator.pushReplacementNamed(context, '/'); }); });
+                        user.model.height = _height;
+                        setAlarm().then( (r) { Future( () { Navigator.pop(context); }); });
                       },
                     ),
                   ],
