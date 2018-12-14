@@ -22,22 +22,6 @@ class _TrackPageState extends State<TrackPage> {
   DateTime _selectedMonth = DateTime.now();
   List<UserStats> _data;
   List<TimelineModel> _timeline;
-//  List<UserStats> generatePlaceholderData() {
-//    var r = Random();
-//    List<UserStats> data = [];
-//    var y = _selectedMonth.year, m = _selectedMonth.month;
-//    var h = DateTime.now().year == y && DateTime.now().month == m ? DateTime.now().day - 1 : DateTime(y, m+1, 0).day;
-//    for(var d = 1; d <= h; d++) {
-//      var sleepTime = DateTime(y, m, d, 19 + r.nextInt(4), r.nextInt(59), r.nextInt(59));
-//      data.add(UserStats(
-//        sleepTs: sleepTime,
-//        wakeUpTs: sleepTime.add(Duration(hours: 5 + r.nextInt(4), minutes: r.nextInt(59), seconds: r.nextInt(59))),
-//        weight: 67 + r.nextDouble() * 5,
-//        height: 1.70,
-//      ));
-//    }
-//    return data;
-//  }
   Future<void> refreshData() async {
     setState(() { _data = _timeline = null; });
     Future<Response> fetchStatistics() async { return post(APIEndpointAssets.userStatisticsService, body: {'idToken': await user.user.getIdToken(), 'month': _selectedMonth.month.toString(), 'year': _selectedMonth.year.toString()}); }

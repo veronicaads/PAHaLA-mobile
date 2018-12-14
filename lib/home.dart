@@ -294,8 +294,8 @@ class NewsMenuCard extends StatelessWidget {
         child: Swiper(
           itemBuilder: (BuildContext context, int index) {
             var scenes = <Widget>[
-              NewsMenuScene(data: news,),
-              NewsMenuScene(data: menu,),
+              NewsMenuScene(title: "Current News", data: news,),
+              NewsMenuScene(title: "Menu Recommendation", data: menu,),
             ];
             return scenes[index];
           },
@@ -317,51 +317,58 @@ class NewsMenuCard extends StatelessWidget {
 }
 
 class NewsMenuScene extends StatelessWidget {
-  const NewsMenuScene({Key key, this.data}) : super(key: key);
+  const NewsMenuScene({Key key, this.title, this.data}) : super(key: key);
+  final String title;
   final List<NewsMenu> data;
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      children: List<GestureDetector>.generate(data.length,
-        (i) => GestureDetector(
-          onTap: () {
-            _launchURL(url) async {
-              if (await canLaunch(url)) {
-                await launch(url);
-              } else {
-                throw 'Could not launch $url';
-              }
-            }
-            _launchURL(data[i].url);
-          },
-          child: Row(
-            children: <Widget>[
-              Container(
-                constraints: BoxConstraints.expand(width: 80.0, height: 60.0),
-                margin: EdgeInsets.symmetric(vertical: 5.0),
-                child: AspectRatio(
-                  aspectRatio: 1.5,
-                  child: data[i].picture != null ? Image.network(data[i].picture) : Image.asset('assets/images/placeholder.png'),
-                ),
-              ),
-              Expanded(
-                child: Container(
-                  margin: EdgeInsets.only(left: 10.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Text(data[i].title != null ? data[i].title : '', maxLines: 1, overflow: TextOverflow.clip, style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),),
-                      Container(
-                        child: Text(data[i].desc != null ? data[i].desc : '', maxLines: 3, overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.grey, fontStyle: FontStyle.italic, fontSize: 12.0),),
+    return Column(
+      children: <Widget>[
+        ListTile(
+          title: Text(title),
+        ),
+        Expanded(
+          child: ListView(
+            children: List<GestureDetector>.generate(data.length,
+              (i) => GestureDetector(
+                onTap: () {
+                  _launchURL(url) async {
+                    if (await canLaunch(url)) await launch(url);
+                    else throw 'Could not launch $url';
+                  }
+                  _launchURL(data[i].url);
+                },
+                child: Row(
+                  children: <Widget>[
+                    Container(
+                      constraints: BoxConstraints.expand(width: 80.0, height: 60.0),
+                      margin: EdgeInsets.symmetric(vertical: 5.0),
+                      child: AspectRatio(
+                        aspectRatio: 1.5,
+                        child: data[i].picture != null ? Image.network(data[i].picture) : Image.asset('assets/images/placeholder.png'),
                       ),
-                    ],
-                  ),
+                    ),
+                    Expanded(
+                      child: Container(
+                        margin: EdgeInsets.only(left: 10.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Text(data[i].title != null ? data[i].title : '', maxLines: 1, overflow: TextOverflow.clip, style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),),
+                            Container(
+                              child: Text(data[i].desc != null ? data[i].desc : '', maxLines: 3, overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.grey, fontStyle: FontStyle.italic, fontSize: 12.0),),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-            ],
+              )
+            ),
           ),
-        )
-      ),
+        ),
+      ],
     );
   }
 }
