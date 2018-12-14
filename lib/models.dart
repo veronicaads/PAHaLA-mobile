@@ -24,9 +24,11 @@ class SystemUser {
   }
   Future _init() async {
     user = await FirebaseAuth.instance.currentUser();
-    print("GET ID TOKEN: " + await user.getIdToken());
-    await handleSignIn();
-    model = await fetchUserModel();
+    if(user != null) {
+      print("GET ID TOKEN: " + await user.getIdToken());
+      await handleSignIn();
+      model = await fetchUserModel();
+    }
   }
   Future get initDone => _done;
   Future<UserModel> fetchUserModel() async {
@@ -169,18 +171,23 @@ class NewsMenu {
 }
 
 class LampNode {
-  LampNode({this.name, this.isOn, this.isLoading});
+  LampNode({this.node_uuid, this.name, this.isOn, this.isLoading});
+  String node_uuid;
   String name;
   bool isOn;
   bool isLoading;
   static List<LampNode> lampNodeFromResponse(String json) {
     var result = List<LampNode>();
     var decoded = jsonDecode(json)['data'];
-    result.add(LampNode(
-      name: "Lamp",
-      isLoading: false,
-      isOn: decoded['status'],
-    ));
+    print("LAMP RESPONSE: " + decoded.toString());
+    for(var item in decoded){
+      result.add(LampNode(
+        node_uuid: item['node_uuid'],
+        name: item['name'],
+        isLoading: false,
+        isOn: item['data']['status'] == "true",
+      ));
+    }
     return result;
   }
 }

@@ -16,6 +16,7 @@ class PahalaApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return new MaterialApp(
       title: 'PAHaLA',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         fontFamily: 'Proxima Nova',
         primarySwatch: BaseColorAssets.materialPrimary,
@@ -48,7 +49,7 @@ class _HomeState extends State<Home> {
     Future(() async {
       await user.initDone;
       if(user.user == null){
-        Navigator.pushReplacementNamed(context, '/login');
+        Future(() { Navigator.pushReplacementNamed(context, '/login'); });
       } else {
 //        user.user.getIdToken(refresh: true).then(
 //          (r) { print("GET ID TOKEN: " + r); }

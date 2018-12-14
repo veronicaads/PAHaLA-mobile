@@ -99,7 +99,7 @@ class _MePageState extends State<MePage> {
                   user.handleSignOut().then(
                     (_) {
                       Scaffold.of(context).showSnackBar(SnackBar(content: Text("Logged out")));
-                      Future(() { Navigator.pushReplacementNamed(context, '/login '); });
+                      Future(() { Navigator.pushReplacementNamed(context, '/login'); });
                     }
                   );
                 },
@@ -206,13 +206,27 @@ class _UpdateSchedulePageState extends State<UpdateSchedulePage>{
                         String f(TimeOfDay t) {
                           return t.hour.toString().padLeft(2, '0') + ':' + t.minute.toString().padLeft(2, '0') + ":00";
                         }
-                        Future<Response> setAlarm() async { return post(APIEndpointAssets.userAlarmService, body: {
-                          'idToken': await user.user.getIdToken(),
-                          'wd': f(_weekDayAlarm),
-                          'we': f(_weekEndAlarm),
-                          'ph': f(_publicHolidayAlarm),
-                        }); }
-                        setAlarm().then( (r) { Future( () { Navigator.pop(context); }); });
+                        Future<Response> setAlarm() async {
+                          if(!_advanced) _weekEndAlarm = _publicHolidayAlarm = _weekDayAlarm;
+                          return post(APIEndpointAssets.userAlarmService, body: {
+                            'idToken': await user.user.getIdToken(),
+                            'wd': f(_weekDayAlarm),
+                            'we': f(_weekEndAlarm),
+                            'ph': f(_publicHolidayAlarm),
+                          });
+                        }
+                        setAlarm().then( (r) {
+                          Future(() {
+                            Navigator.pop(context);
+                            setState(() {
+                              user.model.schedule = {
+                                'wd': f(_weekDayAlarm),
+                                'we': f(_weekEndAlarm),
+                                'ph': f(_publicHolidayAlarm),
+                              };
+                            });
+                          });
+                        });
                       },
                     ),
                   ],

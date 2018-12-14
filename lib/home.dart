@@ -43,7 +43,7 @@ class _HomePageState extends State<HomePage> {
       fetchNews().then( (r) { setState(() { _newsData = NewsMenu.newsFromResponse(r.body); }); });
       Future<Response> fetchMenu() async { return post(APIEndpointAssets.menuService, body: {'idToken': await user.user.getIdToken()}); }
       fetchMenu().then( (r) { setState(() { _menuData = NewsMenu.menuFromResponse(r.body); }); });
-      Future<Response> fetchLampStatus() async { return post(APIEndpointAssets.userLampService, body: {'idToken': await user.user.getIdToken()}); }
+      Future<Response> fetchLampStatus() async { return post(APIEndpointAssets.userNodeGetLampService, body: {'idToken': await user.user.getIdToken()}); }
       fetchLampStatus().then((r) { setState(() { _lampData = LampNode.lampNodeFromResponse(r.body); }); });
       Future<Response> fetchNextDayAlarm() async { return post(APIEndpointAssets.userNextAlarmService, body: { 'idToken' : await user.user.getIdToken() }); }
       fetchNextDayAlarm().then((r) {
@@ -68,11 +68,12 @@ class _HomePageState extends State<HomePage> {
                 lampSelect: (v) { setState(() { _lampSelection = v; }); },
                 lampPress: () {
                   setState(() { _lampData[_lampSelection].isLoading = true; });
-                  Future<Response> turnLamp(v) async { return post(APIEndpointAssets.nodeLampService, body: {'idToken': await user.user.getIdToken(), 'flag': v.toString()}); }
+                  Future<Response> turnLamp(v) async {
+                    return post(APIEndpointAssets.userNodeSetLampService, body: {'idToken': await user.user.getIdToken(), 'status': v.toString(), 'node_uuid': _lampData[_lampSelection].node_uuid});
+                  }
                   turnLamp(!_lampData[_lampSelection].isOn).then(
                     (r) {
-                    print("RESPONSE SERVER LAMP: " + r.body);
-                      setState(() { _lampData[_lampSelection].isOn = jsonDecode(r.body)['data']['status_lamp'] == "true"; _lampData[_lampSelection].isLoading = false; });
+                      setState(() { _lampData[_lampSelection].isOn = jsonDecode(r.body)['data']['status'] == "true"; _lampData[_lampSelection].isLoading = false; });
                     }
                   );
                 },
@@ -82,6 +83,7 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
         NewsMenuCard(menu: _menuData, news: _newsData,),
+        QuoteCard(quote: _quote,),
       ],
     ) : SpinKitDoubleBounce(color: BaseColorAssets.primary60, size: 200.0,);
   }
@@ -286,9 +288,9 @@ class NewsMenuCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: EdgeInsets.only(left: 15.0, right: 15.0, top: 5.0, bottom: 20.0),
+      margin: EdgeInsets.symmetric(horizontal: 15.0, vertical: 5.0,),
       child: AspectRatio(
-        aspectRatio: 1.3,
+        aspectRatio: 1,
         child: Swiper(
           itemBuilder: (BuildContext context, int index) {
             var scenes = <Widget>[
@@ -359,6 +361,37 @@ class NewsMenuScene extends StatelessWidget {
             ],
           ),
         )
+      ),
+    );
+  }
+}
+
+class QuoteCard extends StatelessWidget {
+  QuoteCard({Key key, this.quote}) : super(key: key);
+  final Quote quote;
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: EdgeInsets.symmetric(horizontal: 15.0, vertical: 5.0,),
+      child: Container(
+        margin: EdgeInsets.all(20.0),
+        child: Column(
+          children: <Widget>[
+            RichText(
+              text: TextSpan(
+                children: <TextSpan>[
+                  TextSpan(text: "\"", style: TextStyle(fontSize: 32.0, color: Colors.grey)),
+                  TextSpan(text: quote.quote.substring(0,1), style: TextStyle(fontSize: 32.0, color: Colors.grey)),
+                  TextSpan(text: quote.quote.substring(1), style: TextStyle(color: Colors.grey)),
+                  TextSpan(text: "\"", style: TextStyle(color: Colors.grey)),
+                ],
+              ),
+              textAlign: TextAlign.center,
+            ),
+            Container(margin: EdgeInsets.all(5.0),),
+            Text("— " + quote.author + " —", textAlign: TextAlign.end, style: TextStyle(color: Colors.grey),),
+          ],
+        ),
       ),
     );
   }

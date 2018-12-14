@@ -5,23 +5,21 @@ class APIEndpointAssets {
   static final domain = 'pahala.xyz';
   static final baseURL = APIEndpointAssets.protocol + APIEndpointAssets.domain;
   static final userService = APIEndpointAssets.baseURL + '/user';
-  static final userAlarmService = APIEndpointAssets.userService + '/alarm';
-//  static final userTokenService = APIEndpointAssets.baseURL + '/token';
-  static final userLampService = APIEndpointAssets.userService + '/lamp';
-  static final userHeightService = APIEndpointAssets.userService + '/height';
+  static final userSignUpService = APIEndpointAssets.userService + '/signup';
   static final userDataService = APIEndpointAssets.userService + '/data';
+  static final userHeightService = APIEndpointAssets.userService + '/height';
+  static final userAlarmService = APIEndpointAssets.userService + '/alarm';
   static final userNextAlarmService = APIEndpointAssets.userService + '/nextalarm';
+  static final userNodeService = APIEndpointAssets.userService + '/node';
+  static final userNodeGetLampService = APIEndpointAssets.userNodeService + '/getlamp';
+  static final userNodeSetLampService = APIEndpointAssets.userNodeService + '/setlamp';
+  static final nodeSleepService = APIEndpointAssets.userService + '/sleep';
   static final userAvailStatsService = APIEndpointAssets.userService + '/availstats';
-  static final userStatisticsService = APIEndpointAssets.userService + '/statistics';
+  static final userStatisticsService = APIEndpointAssets.userService + '/stats';
   static final weatherService = APIEndpointAssets.baseURL + '/weather';
   static final quoteService = APIEndpointAssets.baseURL + '/quote';
   static final newsService = APIEndpointAssets.baseURL + '/news';
   static final menuService = APIEndpointAssets.baseURL + '/menu';
-  static final nodeService = APIEndpointAssets.baseURL + '/node';
-  static final nodeLampService = APIEndpointAssets.nodeService + '/lamp';
-  static final nodeScaleService = APIEndpointAssets.nodeService + '/scale';
-  static final nodeSleepService = APIEndpointAssets.nodeService + '/sleep';
-  // static final statService = APIEndpointAssets.baseURL + '/stat';
 }
 
 class BrandImageAssets {
